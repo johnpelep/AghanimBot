@@ -1,2 +1,2 @@
-# garongbot
+# GarongBot
 discord bot
