@@ -1,0 +1,68 @@
+{
+	"prefix": "!",
+    "token": "NjY1MDYyOTk3MzY2MTQ1MDM0.XxmR9Q.tkdDU3gb4AqxFDt8-2ZSqXEG3pE",
+    "steamApiKey": "A7AEC3DEF2E1F1723E27FA22A531EA93",
+    "accounts": [
+        {
+            "name": "Philip",
+            "steamIds": [
+                "76561198069500729"
+            ]
+        },
+        {
+            "name": "Fate",
+            "steamIds": [
+                "76561198128343271"
+            ]
+        },
+        {
+            "name": "Rexor",
+            "steamIds": [
+                "76561198155358661"
+            ]
+        },
+        {
+            "name": "Lopez",
+            "steamIds": [
+                "76561198262617075",
+				"76561198831343420"
+            ]
+        },
+        {
+            "name": "Dream",
+            "steamIds": [
+                "76561198808808417"
+            ]
+        },
+		{
+			"name": "Rondell",
+			"steamIds": [
+				"76561198318465936"
+			]
+		},
+		{
+			"name": "Aaron",
+			"steamIds": [
+				"76561198112634349"
+			]
+		},
+		{
+			"name": "Roi",
+			"steamIds": [
+				"76561198102423602"
+			]
+		},
+		{
+			"name": "Earn",
+			"steamIds" : [
+				"76561198967962781"
+			]
+		},
+		{
+			"name": "Karl",
+			"steamIds": [
+				"76561198131934845"
+			]
+		}
+    ]
+}

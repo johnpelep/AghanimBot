@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/johnpelep/GarongBot#readme",
   "dependencies": {
-    "discord.js": "^12.2.0"
+    "discord.js": "^12.2.0",
+    "node-fetch": "^2.6.0"
   }
 }
