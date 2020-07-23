@@ -1,0 +1,22 @@
+{
+  "name": "garongbot",
+  "version": "1.0.0",
+  "description": "discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johnpelep/GarongBot.git"
+  },
+  "author": "john_pelep",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnpelep/GarongBot/issues"
+  },
+  "homepage": "https://github.com/johnpelep/GarongBot#readme",
+  "dependencies": {
+    "discord.js": "^12.2.0"
+  }
+}
