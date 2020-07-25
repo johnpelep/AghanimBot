@@ -1,2 +1,2 @@
-# GarongBot
+# AghanimBot
 discord bot
