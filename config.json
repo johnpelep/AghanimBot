@@ -1,5 +1,5 @@
 {
-	"prefix": "!",
+	"suffix": "!",
     "token": "NjY1MDYyOTk3MzY2MTQ1MDM0.XxmR9Q.tkdDU3gb4AqxFDt8-2ZSqXEG3pE",
     "steamApiKey": "A7AEC3DEF2E1F1723E27FA22A531EA93",
     "accounts": [
@@ -28,12 +28,6 @@
 				"76561198831343420"
             ]
         },
-        {
-            "name": "Dream",
-            "steamIds": [
-                "76561198808808417"
-            ]
-        },
 		{
 			"name": "Rondell",
 			"steamIds": [
@@ -55,13 +49,51 @@
 		{
 			"name": "Earn",
 			"steamIds" : [
-				"76561198967962781"
+                "76561198967962781",
+                "76561198103651543"
 			]
 		},
 		{
 			"name": "Karl",
 			"steamIds": [
 				"76561198131934845"
+			]
+		},
+		{
+			"name": "Bobby",
+			"steamIds": [
+				"76561198113020787"
+			]
+		},
+		{
+			"name": "Herald",
+			"steamIds": [
+                "76561198246069336",
+                "76561198281643721"
+			]
+		},
+		{
+			"name": "Jim",
+			"steamIds": [
+                "76561198420108630"
+			]
+		},
+		{
+			"name": "Nikko",
+			"steamIds": [
+                "76561198112547133"
+			]
+		},
+		{
+			"name": "Alvin",
+			"steamIds": [
+                "76561198100383978"
+			]
+		},
+		{
+			"name": "Rhage",
+			"steamIds": [
+                "76561198097610341"
 			]
 		}
     ]
