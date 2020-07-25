@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johnpelep/GarongBot.git"
+    "url": "git+https://github.com/johnpelep/AghanimBot.git"
   },
   "author": "john_pelep",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/johnpelep/GarongBot/issues"
+    "url": "https://github.com/johnpelep/AghanimBot/issues"
   },
-  "homepage": "https://github.com/johnpelep/GarongBot#readme",
+  "homepage": "https://github.com/johnpelep/AghanimBot#readme",
   "dependencies": {
     "@discordjs/opus": "^0.3.2",
     "discord.js": "^12.2.0",
