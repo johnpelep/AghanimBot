@@ -94,35 +94,37 @@ client.on('message', async message => {
 		
 		if (!message.guild) return;
 		
+		const voiceChannel = message.member.voice.channel;
+
 		// Only try to join the sender's voice channel if they are in one themselves
-		if (!message.member.voice.channel) {
-			return message.reply('Ungay anay yot sa voice channel.');
+		if (!voiceChannel) {
+			return message.reply('pag-join anay voice channel yot.');
 		}
 		
-		if (!args.length) {
-			return message.reply('Pagbutang action kun -play or -stop');
-		}
-
-		const action = args[0].toLowerCase();
-
-		if (action == '-stop') {
-			// console.log(client.voiceConnections);
-			// client.\ .first().disconnect();
-        	// client.destroy();
-		}
-		else if (action == '-play') {
-			if (args.length == 1)
-				return message.reply('Ibutang liwat an link san video after san -play')
-
-			const link = args[1];
+		try {
 			const connection = await message.member.voice.channel.join();
-			connection.play(ytdl('https://www.youtube.com/watch?v=dQw4w9WgXcQ', { filter: 'audioonly' }));
-			// connection.play('https://gamepedia.cursecdn.com/dota2_gamepedia/f/f7/Vo_pudge_pud_ability_hook_10.mp3');
-			// const dispatcher = connection.play(
-			// 	ytdl("https://www.youtube.com/watch?v=dQw4w9WgXcQ", { filter: "audioonly" }),
-			// 	{ bitrate: "auto" }
-			// );
+			// const dispatcher = connection.play('C:/Users/johann/Music/Charlie Puth - Girlfriend.mp3');
+			// const dispatcher = connection.play('https://gamepedia.cursecdn.com/dota2_gamepedia/f/f7/Vo_pudge_pud_ability_hook_10.mp3', { volume: 2});
+			const dispatcher = connection.play(ytdl('https://www.youtube.com/watch?v=dQw4w9WgXcQ', { filter: 'audioonly' }));
+
+			dispatcher.on('start', () => {
+				console.log('audio.mp3 is now playing!');
+			});
+			
+			dispatcher.on('finish', () => {
+				console.log('audio.mp3 has finished playing!');
+				voiceChannel.leave();
+			});
+
+			// Always remember to handle errors appropriately!
+			dispatcher.on('error', console.error);
+			dispatcher.on('debug', info => console.log(info));
+		} catch (error) {
+			console.error(error);
+			voiceChannel.leave();
 		}
+
+		
 	}
 	else if (command == `invokelist${config.suffix}`) {
 		const embedMessage = {
@@ -203,7 +205,7 @@ function buildMessageFields(player, fields) {
 			status = 'Busy';
 			break;
 		case 3:
-			status = 'Away';
+			status = 'Away (Nauro ine na klase)';
 			break;
 		case 4:
 			status = 'Snooze';
