@@ -242,7 +242,7 @@ function buildMessageFields(player, fields) {
 			status = 'Looking to Trade';
 			break;
 		case 6:
-			status = 'Looing to Play';
+			status = 'Looking to Play';
 			break;
 		default:
 			status = 'Ambot daw'
@@ -255,17 +255,11 @@ function buildMessageFields(player, fields) {
 		inline: false
 	});
 	
-	// Status and Game
+	// Status
 	if (player.gameextrainfo != undefined) {
 		fields.push({
 			name: 'Status',
-			value: `${status} (Currently In-Game)`,
-			inline: false
-		});
-
-		fields.push({
-			name: 'Game',
-			value: player.gameextrainfo,
+			value: `Playing ${player.gameextrainfo}`,
 			inline: false
 		});
 	}
