@@ -2,12 +2,10 @@
 const Discord = require('discord.js');
 const config = require('./config.json');
 const fetch = require('node-fetch');
-const ytdl = require('ytdl-core');
+const { token, key, url } = require('./config');
 
 // create a new Discord client
 const client = new Discord.Client();
-
-let isPlaying = false;
 
 // when the client is ready, run this code
 // this event will only trigger one time after logging in
@@ -22,7 +20,7 @@ client.on('message', async message => {
 	const args = message.content.trim().split(/ +/);
 	const command = args.shift().toLowerCase();
 	
-	if (command == `friends${config.suffix}`) {
+	if (command == 'friends!') {
 		let status = '';
 
 		if (args.length) 
@@ -89,72 +87,7 @@ client.on('message', async message => {
 			}
 		}
 	}
-	else if (command == `djviper${config.suffix}`) {
-		// Voice only works in guilds, if the message does not come from a guild,
-		// we ignore it
-		
-		if (!message.guild) return;
-
-		if (isPlaying) {
-			return message.reply('wet, may ginpi-play pa si djviper.');
-		}
-		
-		const voiceChannel = message.member.voice.channel;
-
-		// Only try to join the sender's voice channel if they are in one themselves
-		if (!voiceChannel) {
-			return message.reply('pag-join anay voice channel yot.');
-		}
-
-		if (args.indexOf('-link') == -1) {
-			return message.reply('ibutang liwat an youtube link yot pati volume (1 an normal). Sample: DjViper! -link https://www.youtube.com/mekeh -volume 0.5');
-		}
-		
-		try {
-			let options = {};
-
-			if (args.indexOf('-volume') > -1) {
-				options.volume = args[3];
-			}
-			else {
-				options.volume = 1;
-			}
-			
-			const link = args[1];
-			const connection = await message.member.voice.channel.join();
-
-			const songInfo = await ytdl.getInfo(args[1]);
-			
-			// const dispatcher = connection.play('C:/Users/johann/Music/Charlie Puth - Girlfriend.mp3');
-			// const dispatcher = connection.play('https://gamepedia.cursecdn.com/dota2_gamepedia/f/f7/Vo_pudge_pud_ability_hook_10.mp3', { volume: 2});
-			const dispatcher = connection.play(ytdl(link, { filter: 'audioonly' }), options);
-
-			dispatcher.on('start', () => {
-				isPlaying = true;
-				message.reply(`Now playing: ${songInfo.videoDetails.title}`);
-				console.log('audio.mp3 is now playing!');
-			});
-			
-			dispatcher.on('finish', () => {
-				isPlaying = false;
-				console.log('audio.mp3 has finished playing!');
-				voiceChannel.leave();
-			});
-
-			// Always remember to handle errors appropriately!
-			dispatcher.on('error', () => {
-				isPlaying = false;
-				console.error;
-				voiceChannel.leave();
-			});
-		} catch (error) {
-			console.error(error);
-			voiceChannel.leave();
-		}
-
-		
-	}
-	else if (command == `invokelist${config.suffix}`) {
+	else if (command == 'invokelist!') {
 		const embedMessage = {
 			color: 0x0099ff,
 			title: 'Invoke List',
@@ -176,7 +109,7 @@ client.on('message', async message => {
 				},
 				{
 					name: 'Friends! -active',
-					value: 'Listahan san malalakas',
+					value: 'Listahan san mga nagpaparm',
 					inline: false
 				},
 				{
@@ -186,28 +119,22 @@ client.on('message', async message => {
 				},
 				{
 					name: 'Friends! -passive',
-					value: 'Listahan san mga bayot',
-					inline: false
-				},
-				{
-					name: '\u200b',
-					value: '\u200b',
-					inline: false
-				},
-				{
-					name: 'DjViper! -link https://www.youtube.com/mekeh -volume 1',
-					value: 'Pandisco-disco.',
+					value: 'Listahan san mga gutom',
 					inline: false
 				}
 			]
 		};
 
 		message.reply({ embed: embedMessage });
+	
+	}
+	else if (command == 'hello!') {
+		return message.channel.send('world!');
 	}
 });
 
 // login to Discord with your app's token
-client.login(config.token);
+client.login(token);
 
 function buildUrl() {
 	const steamIds = [];
@@ -216,7 +143,7 @@ function buildUrl() {
 		steamIds.push(config.accounts[i].steamIds);
 	}
 
-	return `http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${config.steamApiKey}&steamids=${steamIds.join(',')}`
+	return `${url}?key=${key}&steamids=${steamIds.join(',')}`
 }
 
 function buildMessageFields(player, fields) {
