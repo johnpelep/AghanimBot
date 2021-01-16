@@ -1,6 +1,6 @@
 // require the discord.js module
 const Discord = require('discord.js');
-const config = require('./config.json');
+const accounts = require('./accounts.json').accounts;
 const fetch = require('node-fetch');
 const { token, key, url } = require('./config');
 
@@ -119,7 +119,7 @@ client.on('message', async message => {
 				},
 				{
 					name: 'Friends! -passive',
-					value: 'Listahan san mga gutom',
+					value: 'Listahan san mga nagugutom',
 					inline: false
 				}
 			]
@@ -139,8 +139,8 @@ client.login(token);
 function buildUrl() {
 	const steamIds = [];
 	
-	for (var i = 0; i < config.accounts.length; i++) {
-		steamIds.push(config.accounts[i].steamIds);
+	for (var i = 0; i < accounts.length; i++) {
+		steamIds.push(accounts[i].steamIds);
 	}
 
 	return `${url}?key=${key}&steamids=${steamIds.join(',')}`
