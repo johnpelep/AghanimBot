@@ -1,97 +1,99 @@
 {
-    "accounts": [
-        {
-            "name": "Philip",
-            "steamIds": [
-                "76561198069500729"
-            ]
-        },
-        {
-            "name": "Fate",
-            "steamIds": [
-                "76561198128343271"
-            ]
-        },
-        {
-            "name": "Rexor",
-            "steamIds": [
-                "76561198155358661"
-            ]
-        },
-        {
-            "name": "Lopez",
-            "steamIds": [
-                "76561198262617075",
-				"76561198831343420"
-            ]
-        },
+	"accounts": [
 		{
-			"name": "Rondell",
-			"steamIds": [
-				"76561198318465936"
-			]
+			"owner": "Philip",
+			"steamId": "76561198069500729",
+			"accountId": "109235001"
 		},
 		{
-			"name": "Aaron",
-			"steamIds": [
-				"76561198112634349"
-			]
+			"owner": "Fate",
+			"steamId": "76561198128343271",
+			"accountId": "168077543"
 		},
 		{
-			"name": "Roi",
-			"steamIds": [
-				"76561198102423602"
-			]
+			"owner": "Rexor",
+			"steamId": "76561198155358661",
+			"accountId": "195092933"
 		},
 		{
-			"name": "Earn",
-			"steamIds" : [
-                "76561198967962781",
-                "76561198103651543"
-			]
+			"owner": "Lopez",
+			"steamId": "76561198262617075",
+			"accountId": "302351347"
 		},
 		{
-			"name": "Karl",
-			"steamIds": [
-				"76561198131934845"
-			]
+			"owner": "Lopez",
+			"steamId": "76561198831343420",
+			"accountId": "871077692"
 		},
 		{
-			"name": "Bobby",
-			"steamIds": [
-				"76561198113020787"
-			]
+			"owner": "Rondell",
+			"steamId": "76561198318465936",
+			"accountId": "358200208"
 		},
 		{
-			"name": "Herald",
-			"steamIds": [
-                "76561198246069336",
-                "76561198281643721"
-			]
+			"owner": "Aaron",
+			"steamId": "76561198112634349",
+			"accountId": "152368621"
 		},
 		{
-			"name": "Jim",
-			"steamIds": [
-                "76561198420108630"
-			]
+			"owner": "Aaron",
+			"steamId": "76561198282861424",
+			"accountId": "322595696"
 		},
 		{
-			"name": "Nikko",
-			"steamIds": [
-                "76561198112547133"
-			]
+			"owner": "Roi",
+			"steamId": "76561198102423602",
+			"accountId": "142157874"
 		},
 		{
-			"name": "Alvin",
-			"steamIds": [
-                "76561198100383978"
-			]
+			"owner": "Earn",
+			"steamId": "76561198967962781",
+			"accountId": "1007697053"
 		},
 		{
-			"name": "Rhage",
-			"steamIds": [
-                "76561198097610341"
-			]
+			"owner": "Earn",
+			"steamId": "76561198103651543",
+			"accountId": "143385815"
+		},
+		{
+			"owner": "Karl",
+			"steamId": "76561198131934845",
+			"accountId": "171669117"
+		},
+		{
+			"owner": "Bobby",
+			"steamId": "76561198113020787",
+			"accountId": "152755059"
+		},
+		{
+			"owner": "Herald",
+			"steamId": "76561198246069336",
+			"accountId": "285803608"
+		},
+		{
+			"owner": "Herald",
+			"steamId": "76561198281643721",
+			"accountId": "321377993"
+		},
+		{
+			"owner": "Jim",
+			"steamId": "76561198420108630",
+			"accountId": "459842902"
+		},
+		{
+			"owner": "Nikko",
+			"steamId": "76561198112547133",
+			"accountId": "152281405"
+		},
+		{
+			"owner": "Alvin",
+			"steamId": "76561198100383978",
+			"accountId": "140118250"
+		},
+		{
+			"owner": "Rhage",
+			"steamId": "76561198097610341",
+			"accountId": "137344613"
 		}
-    ]
+	]
 }

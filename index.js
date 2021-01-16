@@ -2,7 +2,7 @@
 const Discord = require('discord.js');
 const accounts = require('./accounts.json').accounts;
 const fetch = require('node-fetch');
-const { token, key, url } = require('./config');
+const { token, key, url, recentMatchesUrl } = require('./config');
 
 // create a new Discord client
 const client = new Discord.Client();
@@ -19,15 +19,14 @@ client.on('message', async message => {
 
 	const args = message.content.trim().split(/ +/);
 	const command = args.shift().toLowerCase();
-	
+
 	if (command == 'friends!') {
 		let status = '';
 
-		if (args.length) 
+		if (args.length)
 			status = args[0].toLowerCase();
 
-		const url = buildUrl();
-		const res = await fetch(url).then(response => response.json());
+		const res = await fetch(buildUrl()).then(response => response.json());
 		let players = res.response.players;
 		const ingamePlayers = players.filter(item => item.gameextrainfo != undefined);
 		const onlinePlayers = players.filter(item => item.personastate > 0 && item.gameextrainfo == undefined);
@@ -37,7 +36,7 @@ client.on('message', async message => {
 		// sort ingame and online players by status
 		ingamePlayers.sort((a, b) => a.personastate - b.personastate);
 		onlinePlayers.sort((a, b) => a.personastate - b.personastate);
-						
+
 		//sort offline players by lastlogoff
 		offlinePlayers.sort((a, b) => b.lastlogoff - a.lastlogoff);
 
@@ -55,7 +54,7 @@ client.on('message', async message => {
 				players = ingamePlayers.concat(onlinePlayers).concat(offlinePlayers).concat(offlinePlayersNotFriend);
 		}
 
-		let fields = [ 
+		let fields = [
 			{
 				name: '\u200b',
 				value: '\u200b',
@@ -68,15 +67,42 @@ client.on('message', async message => {
 			title: 'Let us skirmish!',
 		};
 
-		for (var i = 0; i < players.length; i++) {
-			fields = buildMessageFields(players[i], fields);
+		// get recent matches win/loss
+		if (status == '-busog' || status == '-gutom') {
+			for (let i = 0; i < players.length; i++) {
+				let player = players[i];
+				player.accountId = accounts.find(a => a.steamId == player.steamid).accountId;
+				player = await getRecentMatches(player);
+			}
 
-			if ((i+1) % 6 == 0 || i == players.length-1) {
+			if (status == '-busog')
+				players = players.filter(p => p.isWinStreak && p.streak > 0);
+			else
+				players = players.filter(p => !p.isWinStreak && p.streak > 0);
+
+			players.sort((a, b) => {
+				if (a.streak > b.streak)
+					return -1;
+				else
+					return 1;
+			});
+		}
+
+
+		for (let i = 0; i < players.length; i++) {
+			let player = players[i];
+
+			if (status == '-busog' || status == '-gutom') {
+				fields = buildAppetiteMessageFields(player, fields)
+			} else
+				fields = buildActivityMessageFields(player, fields);
+
+			if ((i + 1) % 6 == 0 || i == players.length - 1) {
 				embedMessage.fields = fields;
 				embedMessage.footer = {
-					text: `Page ${Math.ceil((i+1)/6)} of ${Math.ceil(players.length/6)}`
+					text: `Page ${Math.ceil((i + 1) / 6)} of ${Math.ceil(players.length / 6)}`
 				}
-				fields = [ 
+				fields = [
 					{
 						name: '\u200b',
 						value: '\u200b',
@@ -119,14 +145,34 @@ client.on('message', async message => {
 				},
 				{
 					name: 'Friends! -passive',
-					value: 'Listahan san mga nagugutom',
+					value: 'Listahan san mga nag-inanggoy',
+					inline: false
+				},
+				{
+					name: '\u200b',
+					value: '\u200b',
+					inline: false
+				},
+				{
+					name: 'Friends! -busog',
+					value: 'Listahan san mga win streak',
+					inline: false
+				},
+				{
+					name: '\u200b',
+					value: '\u200b',
+					inline: false
+				},
+				{
+					name: 'Friends! -passive',
+					value: 'Listahan san mga lose streak',
 					inline: false
 				}
 			]
 		};
 
 		message.reply({ embed: embedMessage });
-	
+
 	}
 	else if (command == 'hello!') {
 		return message.channel.send('world!');
@@ -138,18 +184,18 @@ client.login(token);
 
 function buildUrl() {
 	const steamIds = [];
-	
-	for (var i = 0; i < accounts.length; i++) {
-		steamIds.push(accounts[i].steamIds);
+
+	for (let i = 0; i < accounts.length; i++) {
+		steamIds.push(accounts[i].steamId);
 	}
 
 	return `${url}?key=${key}&steamids=${steamIds.join(',')}`
 }
 
-function buildMessageFields(player, fields) {
+function buildActivityMessageFields(player, fields) {
 	let status = '';
-	
-	switch(player.personastate) {
+
+	switch (player.personastate) {
 		case 0:
 			status = 'Offline';
 			break;
@@ -174,14 +220,14 @@ function buildMessageFields(player, fields) {
 		default:
 			status = 'Ambot daw'
 	}
-	
+
 	// Name
 	fields.push({
 		name: 'Name',
 		value: player.personaname,
 		inline: false
 	});
-	
+
 	// Status
 	if (player.gameextrainfo != undefined) {
 		fields.push({
@@ -197,7 +243,7 @@ function buildMessageFields(player, fields) {
 			inline: false
 		});
 	}
-		
+
 	// Last Log Off
 	if (status === 'Offline' && player.lastlogoff != undefined) {
 		var date = new Date(player.lastlogoff * 1000);
@@ -206,14 +252,82 @@ function buildMessageFields(player, fields) {
 			value: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
 			inline: false
 		});
-	}	
-	
+	}
+
 	//break line
 	fields.push({
 		name: '\u200b',
 		value: '\u200b',
 		inline: false
 	});
-	
+
 	return fields;
+}
+
+function buildAppetiteMessageFields(player, fields) {
+	// Name
+	fields.push({
+		name: 'Name',
+		value: player.personaname,
+		inline: false
+	});
+
+	// Win/Lose
+	fields.push({
+		name: 'Recent 20 Matches Win/Loss',
+		value: `${player.win}/${player.loss}`,
+		inline: false
+	});
+
+	// Current Streak
+	fields.push({
+		name: 'Current Streak',
+		value: `${player.streak} ${player.isWinStreak ? player.streak > 1 ? 'wins' : 'win' : player.streak > 1 ? 'losses' : 'loss'}`,
+		inline: false
+	});
+
+	//break line
+	fields.push({
+		name: '\u200b',
+		value: '\u200b',
+		inline: false
+	});
+
+	return fields;
+}
+
+async function getRecentMatches(player) {
+	const res = await fetch(recentMatchesUrl.replace('{account_id}', player.accountId)).then(response => response.json());
+	let win = 0;
+	let loss = 0;
+	let streak = 0;
+	let isWinStreak = false;
+	let isStreakEnd = false;
+
+	if (res.length) {
+		for (let j = 0; j < res.length; j++) {
+			let match = res[j];
+			let isWinner = (match.player_slot < 128 && match.radiant_win) || (match.player_slot > 127 && !match.radiant_win);
+
+			if (j == 0 && isWinner)
+				isWinStreak = true;
+
+			if (isWinner == isWinStreak && !isStreakEnd)
+				streak++;
+			else
+				isStreakEnd = true;
+
+			if (isWinner)
+				win++;
+			else
+				loss++;
+		}
+	}
+
+	player.win = win;
+	player.loss = loss;
+	player.streak = streak;
+	player.isWinStreak = isWinStreak;
+
+	return player;
 }
