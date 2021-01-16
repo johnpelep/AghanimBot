@@ -164,7 +164,7 @@ client.on('message', async message => {
 					inline: false
 				},
 				{
-					name: 'Friends! -passive',
+					name: 'Friends! -gutom',
 					value: 'Listahan san mga lose streak',
 					inline: false
 				}
