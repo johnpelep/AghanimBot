@@ -274,7 +274,7 @@ function buildAppetiteMessageFields(player, fields) {
 
 	// Win/Lose
 	fields.push({
-		name: 'Recent 20 Matches Win/Loss',
+		name: `Recent 20 Matches (${player.win + player.loss} Ranked) Win/Loss`,
 		value: `${player.win}/${player.loss}`,
 		inline: false
 	});
@@ -307,20 +307,23 @@ async function getRecentMatches(player) {
 	if (res.length) {
 		for (let j = 0; j < res.length; j++) {
 			let match = res[j];
-			let isWinner = (match.player_slot < 128 && match.radiant_win) || (match.player_slot > 127 && !match.radiant_win);
 
-			if (j == 0 && isWinner)
-				isWinStreak = true;
+			if (match.lobby_type == 7) {
+				let isWinner = (match.player_slot < 128 && match.radiant_win) || (match.player_slot > 127 && !match.radiant_win);
 
-			if (isWinner == isWinStreak && !isStreakEnd)
-				streak++;
-			else
-				isStreakEnd = true;
-
-			if (isWinner)
-				win++;
-			else
-				loss++;
+				if (j == 0 && isWinner)
+					isWinStreak = true;
+	
+				if (isWinner == isWinStreak && !isStreakEnd)
+					streak++;
+				else
+					isStreakEnd = true;
+	
+				if (isWinner)
+					win++;
+				else
+					loss++;
+			}
 		}
 	}
 
