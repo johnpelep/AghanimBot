@@ -11,6 +11,11 @@
 			"accountId": "168077543"
 		},
 		{
+			"owner": "Fate",
+			"steamId": "76561198103290770",
+			"accountId": "143025042"
+		},
+		{
 			"owner": "Rexor",
 			"steamId": "76561198155358661",
 			"accountId": "195092933"
@@ -62,18 +67,8 @@
 		},
 		{
 			"owner": "Herald",
-			"steamId": "76561198246069336",
-			"accountId": "285803608"
-		},
-		{
-			"owner": "Herald",
 			"steamId": "76561198281643721",
 			"accountId": "321377993"
-		},
-		{
-			"owner": "Jim",
-			"steamId": "76561198420108630",
-			"accountId": "459842902"
 		},
 		{
 			"owner": "Nikko",
@@ -84,6 +79,16 @@
 			"owner": "Rhage",
 			"steamId": "76561198097610341",
 			"accountId": "137344613"
+		},
+		{
+			"owner": "Kenji",
+			"steamId": "76561198359124413",
+			"accountId": "398858685"
+		},
+		{
+			"owner": "Lourd",
+			"steamId": "76561198184169341",
+			"accountId": "223903613"
 		}
 	]
 }

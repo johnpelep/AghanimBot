@@ -26,8 +26,11 @@ client.on('message', async message => {
 		if (args.length)
 			status = args[0].toLowerCase();
 
+		// get player summary from steam api
 		const res = await fetch(buildUrl()).then(response => response.json());
 		let players = res.response.players;
+
+		// filter players by status
 		const ingamePlayers = players.filter(item => item.gameextrainfo != undefined);
 		const onlinePlayers = players.filter(item => item.personastate > 0 && item.gameextrainfo == undefined);
 		const offlinePlayers = players.filter(item => item.personastate == 0 && item.lastlogoff != undefined);
@@ -102,14 +105,9 @@ client.on('message', async message => {
 				embedMessage.footer = {
 					text: `Page ${Math.ceil((i + 1) / 6)} of ${Math.ceil(players.length / 6)}`
 				}
-				fields = [
-					{
-						name: '\u200b',
-						value: '\u200b',
-						inline: false
-					}
-				];
-				message.reply({ embed: embedMessage });
+				fields = [];
+				message.channel.send({ embed: embedMessage });
+				delete embedMessage.title;
 			}
 		}
 	}
@@ -171,7 +169,7 @@ client.on('message', async message => {
 			]
 		};
 
-		message.reply({ embed: embedMessage });
+		message.channel.send({ embed: embedMessage });
 
 	}
 	else if (command == 'hello!') {
