@@ -9,7 +9,7 @@ module.exports = {
         let status = '';
 
 		if (args.length)
-			status = args[0].toLowerCase();
+			status = args.shift().toLowerCase();
 
 		// get player summary from steam api
 		const res = await fetch(buildUrl()).then(response => response.json());
@@ -62,6 +62,9 @@ module.exports = {
 				player.accountId = accounts.find(a => a.steamId == player.steamid).accountId;
 				player = await getRecentMatches(player);
 			}
+
+			// remove players with no games
+			players = players.filter(p => p.streak > 0);
 
 			if (status == '-busog')
 				players = players.filter(p => p.isWinStreak && p.streak > 0);
