@@ -6,7 +6,7 @@ module.exports = {
     async syncAccount(account) {
         const dateToday = new Date();
 	    const firstDayOfMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1).getTime();
-        account.lastSync = Number(account.lastSync ?? firstDayOfMonth);
+        account.lastSync = Number(account.lastSync ? account.lastSync : firstDayOfMonth);
         const limit = calcLimit(lastSync);
         const matches = await getMatches(account.steamId32, limit);
         const record = calcRecord(matches, account);
