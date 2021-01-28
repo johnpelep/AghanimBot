@@ -13,7 +13,7 @@ module.exports = {
 				},
 				{
 					name: 'Friends!',
-					value: 'Pagkita kun sino active ngan passive',
+					value: 'Listahan san active ngan passive',
 					inline: false
 				},
 				{
@@ -54,6 +54,26 @@ module.exports = {
 				{
 					name: 'Friends! -gutom',
 					value: 'Listahan san mga lose streak',
+					inline: false
+				},
+				{
+					name: '\u200b',
+					value: '\u200b',
+					inline: false
+				},
+				{
+					name: 'Invite! <SteamProfileURL>',
+					value: 'Pag add sa listahan',
+					inline: false
+				},
+				{
+					name: '\u200b',
+					value: '\u200b',
+					inline: false
+				},
+				{
+					name: 'Kick! <SteamProfileURL>',
+					value: 'Pag remove sa listahan',
 					inline: false
 				}
 			]

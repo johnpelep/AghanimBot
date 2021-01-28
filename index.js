@@ -27,10 +27,19 @@ client.on('message', async message => {
 	const command = client.commands.get(commandName);
 
 	try {
-+		command.execute(message, args);
++		await command.execute(message, args);
 	} catch (error) {
 		console.error(error);
-		message.reply('there was an error trying to execute that command!');
+		
+		const embedMessage = {
+			color: 0x0099ff,
+			title: 'Noooooo! Oh well',
+			footer: {
+				text: 'nagka-error. try nala utro hehe'
+			}
+		}
+
+		return message.reply({ embed: embedMessage });
 	}
 });
 

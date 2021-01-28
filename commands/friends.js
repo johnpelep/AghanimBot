@@ -1,6 +1,5 @@
-const accounts = require('../accounts.json').accounts;
-const fetch = require('node-fetch');
-const { key, url, recentMatchesUrl } = require('../config');
+const accountService = require('../services/accountService');
+const dotaApiService = require('../services/dotaApiService');
 
 module.exports = {
     name: 'friends',
@@ -12,8 +11,8 @@ module.exports = {
 			status = args.shift().toLowerCase();
 
 		// get player summary from steam api
-		const res = await fetch(buildUrl()).then(response => response.json());
-		let players = res.response.players;
+		const accounts = await accountService.getAccounts();
+		let players = await dotaApiService.getPlayerSummary(accounts);
 
 		// filter players by status
 		const ingamePlayers = players.filter(item => item.gameextrainfo != undefined);
@@ -59,8 +58,8 @@ module.exports = {
 		if (status == '-busog' || status == '-gutom') {
 			for (let i = 0; i < players.length; i++) {
 				let player = players[i];
-				player.accountId = accounts.find(a => a.steamId == player.steamid).accountId;
-				player = await getRecentMatches(player);
+				player.accountId = accounts.find(a => a.steamId64 == player.steamid).steamId32;
+				player = await dotaApiService.getRecentMatches(player, 20);
 			}
 
 			// remove players with no games
@@ -79,6 +78,13 @@ module.exports = {
 			});
 		}
 
+		if (!players.length) {
+			embedMessage.footer = {
+				text: 'No records found'
+			};
+
+			return message.channel.send({ embed: embedMessage });
+		}
 
 		for (let i = 0; i < players.length; i++) {
 			let player = players[i];
@@ -101,15 +107,6 @@ module.exports = {
     }
 };
 
-function buildUrl() {
-	const steamIds = [];
-
-	for (let i = 0; i < accounts.length; i++) {
-		steamIds.push(accounts[i].steamId);
-	}
-
-	return `${url}?key=${key}&steamids=${steamIds.join(',')}`
-}
 
 function buildActivityMessageFields(player, fields) {
 	let status = '';
@@ -125,7 +122,7 @@ function buildActivityMessageFields(player, fields) {
 			status = 'Busy';
 			break;
 		case 3:
-			status = 'Away (Nauro ine na klase)';
+			status = 'Away';
 			break;
 		case 4:
 			status = 'Snooze';
@@ -213,43 +210,4 @@ function buildAppetiteMessageFields(player, fields) {
 	});
 
 	return fields;
-}
-
-async function getRecentMatches(player) {
-	const res = await fetch(recentMatchesUrl.replace('{account_id}', player.accountId)).then(response => response.json());
-	let win = 0;
-	let loss = 0;
-	let streak = 0;
-	let isWinStreak = false;
-	let isStreakEnd = false;
-
-	if (res.length) {
-		for (let j = 0; j < res.length; j++) {
-			let match = res[j];
-
-			if (match.lobby_type == 7) {
-				let isWinner = (match.player_slot < 128 && match.radiant_win) || (match.player_slot > 127 && !match.radiant_win);
-
-				if (j == 0 && isWinner)
-					isWinStreak = true;
-	
-				if (isWinner == isWinStreak && !isStreakEnd)
-					streak++;
-				else
-					isStreakEnd = true;
-	
-				if (isWinner)
-					win++;
-				else
-					loss++;
-			}
-		}
-	}
-
-	player.win = win;
-	player.loss = loss;
-	player.streak = streak;
-	player.isWinStreak = isWinStreak;
-
-	return player;
 }
