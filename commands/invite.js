@@ -5,14 +5,14 @@ const accountService = require('../services/accountService');
 module.exports = {
     name: 'invite',
     async execute(message, args) {
-        const profileUrl = args.shift();
+        let profileUrl = args.shift();
 
         if (profileUrl.indexOf('steamcommunity.com/') == -1)
             return message.reply('Invalid steam profile url');
 
         // remove last slash
         if (profileUrl.endsWith('/'))
-            profileUrl = profileUrl.slice(-1);
+            profileUrl = profileUrl.slice(0, -1);
 
         // split url and get last item
         const steamUrlSplit = profileUrl.split('/');

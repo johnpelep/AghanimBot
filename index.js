@@ -35,7 +35,7 @@ client.on('message', async message => {
 			color: 0x0099ff,
 			title: 'Noooooo! Oh well',
 			footer: {
-				text: 'nagka-error. try nala utro hehe'
+				text: 'nagka-error hehe. try nala utro hehehe'
 			}
 		}
 
