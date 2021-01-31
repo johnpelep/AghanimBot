@@ -1,5 +1,3 @@
-const { key, resolveVanityUrl, getPlayerSummaryUrl } = require('../config');
-const fetch = require('node-fetch');
 const accountService = require('../services/accountService');
 
 module.exports = {
@@ -22,7 +20,7 @@ module.exports = {
         if (profileUrl.indexOf('steamcommunity.com/id/') > -1) {
 
             // get steamId64
-            const res = await fetch(`${resolveVanityUrl}?key=${key}&vanityurl=${steamId64}`).then(response => response.json());
+            const res = dotaApiService.resolveVanityUrl(steamId64);
             
             if (res.response.success == 1) {
                 steamId64 = res.response.steamid;
@@ -30,7 +28,7 @@ module.exports = {
         }
        
         // check if steam id is valid
-        const res = await fetch(`${getPlayerSummaryUrl}?key=${key}&steamids=${steamId64}`).then(response => response.json());
+        const res = await dotaApiService.getPlayerSummary([ { steamId64: steamId64 } ]);
         const players = res.response.players;
 
         if (!players.length)

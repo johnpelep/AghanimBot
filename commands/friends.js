@@ -1,5 +1,6 @@
 const accountService = require('../services/accountService');
 const dotaApiService = require('../services/dotaApiService');
+const accountHelper = require('../helpers/accountHelper');
 
 module.exports = {
     name: 'friends',
@@ -57,21 +58,25 @@ module.exports = {
 		// get recent matches win/loss
 		if (status == '-busog' || status == '-gutom') {
 			for (let i = 0; i < players.length; i++) {
-				let player = players[i];
-				player.accountId = accounts.find(a => a.steamId64 == player.steamid).steamId32;
-				player = await dotaApiService.getRecentMatches(player, 20);
+				const player = players[i];
+				let account = accounts.find(a => a.steamId64 == player.steamid);
+
+				account.personaName = player.personaname;
+				account = await accountHelper.syncAccount(account);
+
+				player.record = account.record;
 			}
 
 			// remove players with no games
-			players = players.filter(p => p.streak > 0);
+			players = players.filter(p => p.record.streakCount > 0);
 
 			if (status == '-busog')
-				players = players.filter(p => p.isWinStreak && p.streak > 0);
+				players = players.filter(p => p.record.isWinStreak && p.record.streakCount > 0);
 			else
-				players = players.filter(p => !p.isWinStreak && p.streak > 0);
+				players = players.filter(p => !p.record.isWinStreak && p.record.streakCount > 0);
 
 			players.sort((a, b) => {
-				if (a.streak > b.streak)
+				if (a.record.streakCount > b.record.streakCount)
 					return -1;
 				else
 					return 1;
@@ -181,6 +186,8 @@ function buildActivityMessageFields(player, fields) {
 }
 
 function buildAppetiteMessageFields(player, fields) {
+	const record = player.record;
+
 	// Name
 	fields.push({
 		name: 'Name',
@@ -190,15 +197,15 @@ function buildAppetiteMessageFields(player, fields) {
 
 	// Win/Lose
 	fields.push({
-		name: `Recent 20 Matches (${player.win + player.loss == 20 ? 'All' : player.win + player.loss} Ranked) Win/Loss`,
-		value: `${player.win}/${player.loss}`,
+		name: 'Current Month Ranked Match',
+		value: `Total: ${record.winCount + record.lossCount}\nW/L: ${record.winCount}/${record.lossCount}`,
 		inline: false
 	});
 
 	// Current Streak
 	fields.push({
 		name: 'Current Streak',
-		value: `${player.streak} ${player.isWinStreak ? player.streak > 1 ? 'wins' : 'win' : player.streak > 1 ? 'losses' : 'loss'}`,
+		value: `${record.streakCount} ${record.isWinStreak ? record.streakCount > 1 ? 'wins' : 'win' : record.streakCount > 1 ? 'losses' : 'loss'}`,
 		inline: false
 	});
 

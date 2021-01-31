@@ -1,6 +1,6 @@
-const { key, resolveVanityUrl, getPlayerSummaryUrl } = require('../config');
-const fetch = require('node-fetch');
 const accountService = require('../services/accountService');
+const accountHelper = require('../helpers/accountHelper');
+const dotaApiService = require('../services/dotaApiService');
 
 module.exports = {
     name: 'invite',
@@ -22,7 +22,7 @@ module.exports = {
         if (profileUrl.indexOf('steamcommunity.com/id/') > -1) {
 
             // get steamId64
-            const res = await fetch(`${resolveVanityUrl}?key=${key}&vanityurl=${steamId64}`).then(response => response.json());
+            const res = dotaApiService.resolveVanityUrl(steamId64);
             
             if (res.response.success == 1) {
                 steamId64 = res.response.steamid;
@@ -30,7 +30,7 @@ module.exports = {
         }
        
         // check if steam id is valid
-        const res = await fetch(`${getPlayerSummaryUrl}?key=${key}&steamids=${steamId64}`).then(response => response.json());
+        const res = await dotaApiService.getPlayerSummary([ { steamId64: steamId64 } ]);
         const players = res.response.players;
 
         if (!players.length)
@@ -40,8 +40,10 @@ module.exports = {
         const personaName = players[0].personaname;
         let account = await accountService.getAccountAndUpdate({ steamId64: steamId64 }, { $set: { "personaName": personaName } });
         
-        if (account.value)
+        if (account.value) {
+            await accountHelper.syncAccount(account.value);
             return message.channel.send(`Nakalista ka na dap, **${personaName}**`);
+        }
 
         // calc steamId32 from steamId64
         const steamId32 = steamID64toSteamID32(steamId64);
@@ -54,6 +56,8 @@ module.exports = {
         };
             
         await accountService.addAcount(account);
+
+        await accountHelper.syncAccount(account);
 
         return message.channel.send(`*Aghanim the Popular welcomes you,* ***${personaName}***`);
     }
