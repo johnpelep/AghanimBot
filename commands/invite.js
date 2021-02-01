@@ -22,7 +22,7 @@ module.exports = {
         if (profileUrl.indexOf('steamcommunity.com/id/') > -1) {
 
             // get steamId64
-            const res = dotaApiService.resolveVanityUrl(steamId64);
+            const res = await dotaApiService.resolveVanityUrl(steamId64);
             
             if (res.response.success == 1) {
                 steamId64 = res.response.steamid;
@@ -30,19 +30,24 @@ module.exports = {
         }
        
         // check if steam id is valid
-        const res = await dotaApiService.getPlayerSummary([ { steamId64: steamId64 } ]);
-        const players = res.response.players;
+        const players = await dotaApiService.getPlayerSummary([ { steamId64: steamId64 } ]);
 
         if (!players.length)
             return message.reply('Steam user not found');
 
         // check if account is already in collection
-        const personaName = players[0].personaname;
-        let account = await accountService.getAccountAndUpdate({ steamId64: steamId64 }, { $set: { "personaName": personaName } });
+        const player = players[0];
+        const updateDoc = {
+            $set: {
+                personaName: player.personaname,
+                avatar: player.avatarfull
+            }
+        };
+        let account = await accountService.getAccountAndUpdate({ steamId64: steamId64 }, updateDoc);
         
         if (account.value) {
             await accountHelper.syncAccount(account.value);
-            return message.channel.send(`Nakalista ka na dap, **${personaName}**`);
+            return message.channel.send(`Nakalista ka na dap, **${player.personaname}**`);
         }
 
         // calc steamId32 from steamId64
@@ -50,16 +55,17 @@ module.exports = {
 
         // create account document
         account = {
-            "personaName": personaName,
-            "steamId64": steamId64,
-            "steamId32": steamId32
+            personaName: player.personaname,
+            steamId64: steamId64,
+            steamId32: steamId32,
+            avatar: player.avatarfull
         };
             
         await accountService.addAcount(account);
 
         await accountHelper.syncAccount(account);
 
-        return message.channel.send(`*Aghanim the Popular welcomes you,* ***${personaName}***`);
+        return message.channel.send(`*Aghanim the Popular welcomes you,* ***${player.personaname}***`);
     }
 }
 

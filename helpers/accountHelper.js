@@ -17,7 +17,14 @@ module.exports = {
 
         if (record.recordChanged) {
             delete record.recordChanged;
-            account = await accountService.getAccountAndUpdate({ steamId64: account.steamId64 }, { $set: { personaName: account.personaName, record: record } });
+            const updateDoc = {
+                $set: {
+                    personaName: account.personaName,
+                    avatar: account.avatar,
+                    record: record
+                }
+            };
+            account = await accountService.getAccountAndUpdate({ steamId64: account.steamId64 }, updateDoc);
             return account.value;
         }
 

@@ -62,6 +62,7 @@ module.exports = {
 				let account = accounts.find(a => a.steamId64 == player.steamid);
 
 				account.personaName = player.personaname;
+				account.avatar = player.avatarfull;
 				account = await accountHelper.syncAccount(account);
 
 				player.record = account.record;
