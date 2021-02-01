@@ -67,8 +67,8 @@ module.exports = {
 				player.record = account.record;
 			}
 
-			// remove players with no games
-			players = players.filter(p => p.record.streakCount > 0);
+			// remove players with no streak
+			players = players.filter(p => p.record.streakCount > 1);
 
 			if (status == '-busog')
 				players = players.filter(p => p.record.isWinStreak && p.record.streakCount > 0);
