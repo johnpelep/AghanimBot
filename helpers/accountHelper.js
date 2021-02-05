@@ -92,7 +92,7 @@ function calcRecord(matches, account) {
     }
     
     //check if streak continued
-    if (isWinStreak == account.record.isWinStreak && recordChanged && streakCount > 1) 
+    if (isWinStreak == account.record.isWinStreak && recordChanged && !isStreakEnd) 
         streakCount += account.record.streakCount;
 
 	return {
