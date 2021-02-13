@@ -51,6 +51,23 @@ module.exports = {
 
         return accounts;
     },
+    async getAccount(filter) {
+        const client = new MongoClient(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+        let account = null;
+
+        try {
+            await client.connect();
+
+            const database = client.db("aghanimDB");
+            const collection = database.collection('accounts');
+
+            account = await collection.findOne(filter);
+        } finally {
+            await client.close();
+        }
+
+        return account;
+    },
     async deleteAccount(filter) {
         const client = new MongoClient(connectionString, { useNewUrlParser: true, useUnifiedTopology: true });
         let result = {};

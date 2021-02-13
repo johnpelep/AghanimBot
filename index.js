@@ -38,7 +38,7 @@ client.on('message', async message => {
 				text: 'nagka-error hehe. try nala utro hehehe'
 			}
 		}
-
+		
 		return message.reply({ embed: embedMessage });
 	}
 });
