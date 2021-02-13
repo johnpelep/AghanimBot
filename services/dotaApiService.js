@@ -61,6 +61,10 @@ function buildBannerBearBody(account) {
       {
         name: "winRate",
         text: (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%'
+      },
+      {
+        name: "matchCount",
+        text: record.winCount + record.lossCount
       }
     ],
     webhook_url: null,

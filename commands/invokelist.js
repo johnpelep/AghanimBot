@@ -75,6 +75,16 @@ module.exports = {
 					name: 'Kick! <SteamProfileURL>',
 					value: 'Pag remove sa listahan',
 					inline: false
+				},
+				{
+					name: '\u200b',
+					value: '\u200b',
+					inline: false
+				},
+				{
+					name: 'Hindaw! <PlayerName>',
+					value: 'Paghimo infographic',
+					inline: false
 				}
 			]
 		};
