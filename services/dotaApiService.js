@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { key, getPlayerSummaryUrl, getMatchesUrl, resolveVanityUrl, bannerBearUrl, bannerBearApiKey } = require('../config');
+const { key, getPlayerSummaryUrl, getMatchesUrl, resolveVanityUrl, bannerBearImageUrl: bannerBearUrl, bannerBearApiKey, bannerBearAccountUrl } = require('../config');
 
 module.exports = {
   async getPlayerSummary(accounts) {
@@ -23,6 +23,10 @@ module.exports = {
   },
   async getInfographic(url) {
     const res = await axios.get(url, { headers: { 'Authorization': `Bearer ${bannerBearApiKey}` } }).then(response => response).catch(err => { throw err });
+    return res.data;
+  },
+  async getBannerbearAccount() {
+    const res = await axios.get(bannerBearAccountUrl, { headers: { 'Authorization': `Bearer ${bannerBearApiKey}` } }).then(response => response).catch(err => { throw err });
     return res.data;
   }
 }

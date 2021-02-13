@@ -5,6 +5,7 @@ module.exports = {
 	getMatchesUrl: process.env.RECENT_MATCHES_URL,
 	resolveVanityUrl: process.env.RESOLVE_VANITY_URL,
 	connectionString: process.env.CONNECTION_STRING,
-	bannerBearUrl: process.env.BANNERBEAR_API_URL,
+	bannerBearImageUrl: process.env.BANNERBEAR_API_IMAGE_URL,
+	bannerBearAccountUrl: process.env.BANNERBEAR_API_ACCOUNT_URL,
 	bannerBearApiKey: process.env.BANNERBEAR_API_KEY
 };

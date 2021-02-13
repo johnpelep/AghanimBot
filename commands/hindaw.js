@@ -7,8 +7,13 @@ module.exports = {
   name: 'hindaw',
   description: 'Hindaw!',
   async execute(message, args) {
+    let res = await dotaApiService.getBannerbearAccount();
+
+    if (res.free_trial_image_quota == res.free_trial_image_usage)
+      return message.reply('free trial image quota is reached');
+
     if (!args.length) 
-      return message.reply('no name specified');
+      return message.reply('no player name specified');
 
     const personaName = args.join(' ');
 
@@ -19,7 +24,7 @@ module.exports = {
 
     account = await accountHelper.syncAccount(account);
 
-    let res = await dotaApiService.createInfographic(account);
+    res = await dotaApiService.createInfographic(account);
 
     if (res.status.toLowerCase() == 'pending') {
       while (res.status == 'pending') {
