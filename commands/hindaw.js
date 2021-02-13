@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const accountService = require('../services/accountService');
 const dotaApiService = require('../services/dotaApiService');
+const accountHelper = require('../helpers/accountHelper');
 
 module.exports = {
   name: 'hindaw',
@@ -15,6 +16,8 @@ module.exports = {
 
     if (!account) 
       return message.reply('account not found');
+
+    account = await accountHelper.syncAccount(account);
 
     let res = await dotaApiService.createInfographic(account);
 
@@ -31,7 +34,7 @@ module.exports = {
       imageUrl = imageUrl.substring(0, imageUrl.indexOf('?'));
 
     message.channel.send({
-      files: ['imageUrl']
+      files: [imageUrl]
     });
   }
 }
