@@ -60,7 +60,7 @@ function buildBannerBearBody(account) {
       },
       {
         name: "winRate",
-        text: (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2)
+        text: (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%'
       }
     ],
     webhook_url: null,
