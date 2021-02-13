@@ -43,6 +43,11 @@ function buildUrl(accounts) {
 
 function buildBannerBearBody(account) {
   const record = account.record;
+  let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
+
+  if (winRate.endsWith('.00%'))
+    winRate = winRate.substring(0,2) + '%';
+
   return {
     template: "3g8zka5YaGM5EJXBYm",
     modifications: [
@@ -64,7 +69,7 @@ function buildBannerBearBody(account) {
       },
       {
         name: "winRate",
-        text: (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%'
+        text: winRate
       },
       {
         name: "matchCount",
