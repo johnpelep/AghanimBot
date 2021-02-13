@@ -10,12 +10,12 @@ module.exports = {
     if (!args.length) 
       return message.reply('no name specified');
 
-    const personaName = args.shift();
+    const personaName = args.join(' ');
 
     let account = await accountService.getAccount({ personaName: personaName });
 
     if (!account) 
-      return message.reply('account not found');
+      return message.reply(`Account ${personaName} is not found`);
 
     account = await accountHelper.syncAccount(account);
 
