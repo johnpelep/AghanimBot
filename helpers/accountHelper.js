@@ -91,7 +91,8 @@ function calcRecord(matches, account) {
         account.record.lastMatchTime = matches[0].start_time * 1000;
     }
     
-    if (isWinStreak == account.record.isWinStreak && recordChanged) 
+    //check if streak continued
+    if (isWinStreak == account.record.isWinStreak && recordChanged && !isStreakEnd) 
         streakCount += account.record.streakCount;
 
 	return {
