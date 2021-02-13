@@ -12,7 +12,7 @@ module.exports = {
 
     const personaName = args.shift();
 
-    const account = await accountService.getAccount({ personaName: personaName });
+    let account = await accountService.getAccount({ personaName: personaName });
 
     if (!account) 
       return message.reply('account not found');
