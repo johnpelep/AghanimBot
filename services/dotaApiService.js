@@ -46,7 +46,7 @@ function buildBannerBearBody(account) {
   let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
 
   if (winRate.endsWith('.00%'))
-    winRate = winRate.substring(0,winRate.indexOf('.00%')) + '%';
+    winRate = winRate.slice(0, -4) + '%';
 
   return {
     template: "3g8zka5YaGM5EJXBYm",
