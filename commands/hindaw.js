@@ -25,7 +25,7 @@ module.exports = {
 
     // check if account exist
     if (!account) 
-      return message.reply(`account **${personaName}** is wara sa listahan. Paki-add anay gamit an *Invite!* command`);
+      return message.reply(`account **${personaName}** is wara sa listahan. Paki-add anay gamit an **Invite!** command`);
 
     // sync account
     account = await accountHelper.syncAccount(account);
