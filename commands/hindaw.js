@@ -12,7 +12,7 @@ module.exports = {
 
     // check if quota is reached
     if (res.free_trial_image_quota == res.free_trial_image_usage)
-      return message.reply('free trial image quota is reached');
+      return message.reply('sorry, free trial image quota is already reached');
 
     // check if there is argument
     if (!args.length) 
@@ -25,14 +25,14 @@ module.exports = {
 
     // check if account exist
     if (!account) 
-      return message.reply(`Account ${personaName} is not found`);
+      return message.reply(`account ***${personaName}*** is wara sa listahan`);
 
     // sync account
     account = await accountHelper.syncAccount(account);
 
     // check if account has record
     if (!account.record || !account.record.streakCount)
-      return message.reply(`Account ${personaName} has no match recorded for this month`);
+      return message.reply(`account ***${personaName}*** has no match recorded for this month`);
     
     // create infographic image
     res = await dotaApiService.createInfographic(account);
