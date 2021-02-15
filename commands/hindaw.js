@@ -25,14 +25,14 @@ module.exports = {
 
     // check if account exist
     if (!account) 
-      return message.reply(`account ***${personaName}*** is wara sa listahan`);
+      return message.reply(`account **${personaName}** is wara sa listahan`);
 
     // sync account
     account = await accountHelper.syncAccount(account);
 
     // check if account has record
     if (!account.record || !account.record.streakCount)
-      return message.reply(`account ***${personaName}*** has no match recorded for this month`);
+      return message.reply(`account **${personaName}** has no match recorded for this month`);
     
     // create infographic image
     res = await dotaApiService.createInfographic(account);
