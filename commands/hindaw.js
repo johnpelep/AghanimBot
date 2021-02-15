@@ -31,7 +31,7 @@ module.exports = {
     account = await accountHelper.syncAccount(account);
 
     // check if account has record
-    if (!account.record)
+    if (!account.record || !account.record.streakCount)
       return message.reply(`Account ${personaName} has no match recorded for this month`);
     
     // create infographic image
