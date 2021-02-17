@@ -7,12 +7,7 @@ module.exports = {
   name: 'hindaw',
   description: 'Hindaw!',
   async execute(message, args) {
-    // get quota
-    let res = await dotaApiService.getBannerbearAccount();
-
-    // check if quota is reached
-    if (res.free_trial_image_quota == res.free_trial_image_usage)
-      return message.reply('sorry, free trial image quota is already reached. Next month pa utro ma-reset hehe');
+   
 
     // check if there is argument
     if (!args.length) 
@@ -34,29 +29,85 @@ module.exports = {
     if (!account.record || !account.record.streakCount)
       return message.reply(`account **${personaName}** has no match recorded for this month`);
     
-    // create infographic image
-    res = await dotaApiService.createInfographic(account);
+    // get quota
+    let res = await dotaApiService.getBannerbearAccount();
 
-    // check if pending, and wait to complete
-    if (res.status.toLowerCase() == 'pending') {
-      while (res.status == 'pending') {
-        await sleep(1000);
-        res = await dotaApiService.getInfographic(res.self);
-      }
+    let messageObj = {};
+
+    // check if quota is reached
+    if (res.free_trial_image_quota == res.free_trial_image_usage) {
+      message.reply('naabot na an free trial image quota. Kalako niyo, adi la anay');
+
+      // create embedded message
+      messageObj = createEmbeddedMessage(account);
+    } else {
+      // create image message
+      messageObj = await createImageMessage(account);
     }
-
-    // get image url
-    let imageUrl = res.image_url;
-
-    // remove image url query
-    if (imageUrl.indexOf('?') > -1)
-      imageUrl = imageUrl.substring(0, imageUrl.indexOf('?'));
-
-    // send image to discord chat
-    message.channel.send({
-      files: [imageUrl]
-    });
+    
+    return message.channel.send(messageObj);
   }
+}
+
+async function createImageMessage(account) {
+  // create infographic image
+  res = await dotaApiService.createInfographic(account);
+
+  // check if pending, and wait to complete
+  if (res.status.toLowerCase() == 'pending') {
+    while (res.status == 'pending') {
+      await sleep(1000);
+      res = await dotaApiService.getInfographic(res.self);
+    }
+  }
+
+  // get image url
+  let imageUrl = res.image_url;
+
+  // remove image url query
+  if (imageUrl.indexOf('?') > -1)
+    imageUrl = imageUrl.substring(0, imageUrl.indexOf('?'));
+  
+  return { files: [imageUrl] };
+}
+
+function createEmbeddedMessage(account) {
+  const record = account.record;
+  let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
+
+  const embedMessage = {
+    color: 0x0099ff,
+    title: account.personaName,
+    fields: [
+      {
+        name: '\u200b',
+        value: '\u200b',
+        inline: false
+      },
+      {
+        name: 'Total Games',
+        value: record.winCount + record.lossCount,
+        inline: false
+      },
+      {
+        name: 'Wins',
+        value: record.winCount,
+        inline: false
+      },
+      {
+        name: 'Losses',
+        value: record.lossCount,
+        inline: false
+      },
+      {
+        name: 'Win Rate',
+        value: winRate,
+        inline: false
+      },
+    ]
+  };
+
+  return { embed: embedMessage };
 }
 
 function sleep(ms) {
