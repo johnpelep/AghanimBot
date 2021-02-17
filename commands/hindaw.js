@@ -73,8 +73,12 @@ async function createImageMessage(account) {
 
 function createEmbeddedMessage(account) {
   const record = account.record;
-  let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
   const color = record.streakCount > 1 && record.isWinStreak ? 0x89ff89 : record.streakCount > 1 && !record.isWinStreak ? 0xff4534 : 0x0099ff; 
+  
+  let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
+  if (winRate.endsWith('.00%'))
+    winRate = winRate.slice(0, -4) + '%';
+
   const embedMessage = {
     color: color,
     title: account.personaName,
@@ -103,9 +107,17 @@ function createEmbeddedMessage(account) {
         name: 'Win Rate',
         value: winRate,
         inline: false
-      },
+      }
     ]
   };
+
+  if (record.streakCount > 1) {
+    embedMessage.fields.push({
+        name: 'Streak',
+        value: `${record.streakCount} ${record.isWinStreak ? 'wins' : 'losses'}`,
+        inline: false
+    });
+  }
 
   return { embed: embedMessage };
 }
