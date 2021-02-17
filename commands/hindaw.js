@@ -74,9 +74,9 @@ async function createImageMessage(account) {
 function createEmbeddedMessage(account) {
   const record = account.record;
   let winRate = (record.winCount * 100 / (record.winCount + record.lossCount)).toFixed(2) + '%';
-
+  const color = record.streakCount > 1 && record.isWinStreak ? 0x89ff89 : record.streakCount > 1 && !record.isWinStreak ? 0xff4534 : 0x0099ff; 
   const embedMessage = {
-    color: 0x0099ff,
+    color: color,
     title: account.personaName,
     fields: [
       {
