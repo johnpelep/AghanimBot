@@ -12,7 +12,7 @@ module.exports = {
 
     // check if quota is reached
     if (res.free_trial_image_quota == res.free_trial_image_usage)
-      return message.reply('sorry, free trial image quota is already reached');
+      return message.reply('sorry, free trial image quota is already reached. Next month pa utro ma-reset hehe');
 
     // check if there is argument
     if (!args.length) 
