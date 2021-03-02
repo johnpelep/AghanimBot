@@ -51,7 +51,7 @@ module.exports = {
 		];
 
 		let embedMessage = {
-			color: 0x0099ff,
+			color: status == '-busog' ? 0x89ff89 : status == '-gutom' ? 0xff4534 : 0x0099ff,
 			title: 'Let us skirmish!',
 		};
 

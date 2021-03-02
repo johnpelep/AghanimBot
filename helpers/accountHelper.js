@@ -1,8 +1,15 @@
 const accountService = require('../services/accountService');
 const dotaApiService = require('../services/dotaApiService');
+const dateToday = new Date();
+const lastDayOfPreviousMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1).getTime() - 1;
 
 module.exports = {
     async syncAccount(account) {
+        // remove last month record
+        if (account.record && account.record.lastMatchTime <= lastDayOfPreviousMonth) {
+            account = await removeLastMonthRecord(account.steamId64);
+        }
+
         if (!account.record) { 
             account.record = {
                 lastMatchTime: null
@@ -33,13 +40,21 @@ module.exports = {
 }
 
 function setLastMatchTime(lastMatchTime) {
-    const dateToday = new Date();
-    const lastDayOfPreviousMonth = new Date(dateToday.getFullYear(), dateToday.getMonth(), 1).getTime() - 1;
 
     if (!lastMatchTime || lastMatchTime < lastDayOfPreviousMonth)
         return lastDayOfPreviousMonth;
 
     return lastMatchTime; 
+}
+
+async function removeLastMonthRecord(steamId64) {
+    const updateDoc = {
+        $unset: {
+            record: ''
+        }
+    };
+    const account = await accountService.getAccountAndUpdate({ steamId64: steamId64 }, updateDoc);
+    return account.value;
 }
 
 function calcLimit(lastMatchTime) {
