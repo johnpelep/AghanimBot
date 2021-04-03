@@ -4,8 +4,5 @@ module.exports = {
 	getPlayerSummaryUrl: process.env.STEAM_API_URL,
 	getMatchesUrl: process.env.RECENT_MATCHES_URL,
 	resolveVanityUrl: process.env.RESOLVE_VANITY_URL,
-	connectionString: process.env.CONNECTION_STRING,
-	bannerBearImageUrl: process.env.BANNERBEAR_API_IMAGE_URL,
-	bannerBearAccountUrl: process.env.BANNERBEAR_API_ACCOUNT_URL,
-	bannerBearApiKey: process.env.BANNERBEAR_API_KEY
+	connectionString: process.env.CONNECTION_STRING
 };

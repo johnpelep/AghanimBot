@@ -29,46 +29,10 @@ module.exports = {
     if (!account.record || !account.record.streakCount)
       return message.reply(`account **${personaName}** has no match recorded for this month`);
     
-    // get quota
-    let res = await dotaApiService.getBannerbearAccount();
-
-    let messageObj = {};
-
-    // check if quota is reached
-    if (res.free_trial_image_quota == res.free_trial_image_usage) {
-      message.reply('naabot na an free trial image quota. Kalako niyo, adi la anay');
-
-      // create embedded message
-      messageObj = createEmbeddedMessage(account);
-    } else {
-      // create image message
-      messageObj = await createImageMessage(account);
-    }
+    const messageObj = createEmbeddedMessage(account);
     
     return message.channel.send(messageObj);
   }
-}
-
-async function createImageMessage(account) {
-  // create infographic image
-  res = await dotaApiService.createInfographic(account);
-
-  // check if pending, and wait to complete
-  if (res.status.toLowerCase() == 'pending') {
-    while (res.status == 'pending') {
-      await sleep(1000);
-      res = await dotaApiService.getInfographic(res.self);
-    }
-  }
-
-  // get image url
-  let imageUrl = res.image_url;
-
-  // remove image url query
-  if (imageUrl.indexOf('?') > -1)
-    imageUrl = imageUrl.substring(0, imageUrl.indexOf('?'));
-  
-  return { files: [imageUrl] };
 }
 
 function createEmbeddedMessage(account) {
@@ -120,8 +84,4 @@ function createEmbeddedMessage(account) {
   }
 
   return { embed: embedMessage };
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
