@@ -54,6 +54,9 @@ function createEmbeddedMessage(account) {
   const embedMessage = {
     color: color,
     title: account.personaName,
+    thumbnail: {
+      url: account.avatar,
+    },
     fields: [
       {
         name: '\u200b',
