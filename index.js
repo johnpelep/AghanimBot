@@ -29,8 +29,7 @@ client.on('message', async (message) => {
   const command = client.commands.get(commandName);
 
   try {
-    if (commandName == 'hindaw')
-      args = message.content.replace('hindaw!', '').trim();
+    if (commandName == 'hindaw') args = message.content.slice(8);
     await command.execute(message, args);
   } catch (error) {
     console.error(error);
