@@ -1,7 +1,5 @@
-const Discord = require('discord.js');
-const accountService = require('../services/accountService');
-const dotaApiService = require('../services/dotaApiService');
-const accountHelper = require('../helpers/accountHelper');
+const axios = require('axios');
+const { aghanimApiUrl } = require('../config');
 
 module.exports = {
   name: 'hindaw',
@@ -12,8 +10,14 @@ module.exports = {
 
     const personaName = args;
 
-    // get account from db
-    let account = await accountService.getAccount({ personaName: personaName });
+    // get account from api
+    const account = await axios
+      .get(`${aghanimApiUrl}/player?personaName=${personaName}`)
+      .then((response) => response.data)
+      .catch((err) => {
+        if (err.response.status == 404) return null;
+        throw err;
+      });
 
     // check if account exist
     if (!account)
@@ -21,13 +25,10 @@ module.exports = {
         `account **${personaName}** is wara sa listahan. Paki-add anay gamit an **Invite!** command`
       );
 
-    // sync account
-    account = await accountHelper.syncAccount(account);
-
     // check if account has record
     if (!account.record || !account.record.streakCount)
       return message.reply(
-        `account **${personaName}** has no match recorded for this month`
+        `si **${personaName}** waray pa nagpaparm yana nga bulan`
       );
 
     const messageObj = createEmbeddedMessage(account);
