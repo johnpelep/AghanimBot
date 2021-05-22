@@ -13,7 +13,7 @@ module.exports = {
     const personaName = args;
 
     // get account from db
-    let account = await accountService.getAccount({ personaName: args });
+    let account = await accountService.getAccount({ personaName: personaName });
 
     // check if account exist
     if (!account)
