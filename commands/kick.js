@@ -1,48 +1,37 @@
-const accountService = require('../services/accountService');
+const { default: axios } = require('axios');
+const { aghanimApiUrl } = require('../config');
 
 module.exports = {
-    name: 'kick',
-    async execute(message, args) {
-        const profileUrl = args.shift();
+  name: 'kick',
+  async execute(message, args) {
+    // check if there is argument
+    if (!args)
+      return message.reply('waray mo man dap ginbutang kun sino an igkick');
 
-        if (profileUrl.indexOf('steamcommunity.com/') == -1)
-            return message.reply('Invalid steam profile url');
+    const personaName = args;
 
-        // remove last slash
-        if (profileUrl.endsWith('/'))
-            profileUrl = profileUrl.slice(-1);
+    // get account from api
+    const accounts = await axios
+      .get(`${aghanimApiUrl}/players?personaName=${personaName}`)
+      .then((response) => response.data)
+      .catch((err) => {
+        if (err.response.status == 404) return [];
+        throw err;
+      });
 
-        // split url and get last item
-        const steamUrlSplit = profileUrl.split('/');
-        let steamId64 = steamUrlSplit[steamUrlSplit.length -1];
+    // check if account exist
+    if (!accounts.length)
+      return message.reply(`waray man dap sa listahan si **${personaName}**`);
 
-        //check if link is custom url
-        if (profileUrl.indexOf('steamcommunity.com/id/') > -1) {
-
-            // get steamId64
-            const res = dotaApiService.resolveVanityUrl(steamId64);
-            
-            if (res.response.success == 1) {
-                steamId64 = res.response.steamid;
-            }
-        }
-       
-        // check if steam id is valid
-        const res = await dotaApiService.getPlayerSummary([ { steamId64: steamId64 } ]);
-        const players = res.response.players;
-
-        if (!players.length)
-            return message.reply('Steam user not found');
-
-        const personaName = players[0].personaname;
-        const result = await accountService.deleteAccount({ steamId64: steamId64 });
-
-        if (result.deletedCount)
-            return message.channel.send(`*I, I admit nothing but my sadness that you're gone,* ***${personaName}***`);
-    }
-}
-
-// Source: https://stackoverflow.com/questions/23259260/convert-64-bit-steam-id-to-32-bit-account-id#:~:text=To%20convert%20a%2064%20bit,from%20the%2064%20bit%20id.
-function steamID64toSteamID32 (steamID64) {
-    return (Number(steamID64.substr(-16,16)) - 6561197960265728).toString();
-}
+    await axios
+      .delete(`${aghanimApiUrl}/players/${accounts[0].steamId64}`)
+      .then(() =>
+        message.channel.send(
+          `*I, I admit nothing but my sadness that you're gone,* ***${personaName}***`
+        )
+      )
+      .catch((err) => {
+        throw err;
+      });
+  },
+};
