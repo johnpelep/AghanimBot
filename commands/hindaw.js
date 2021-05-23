@@ -11,19 +11,26 @@ module.exports = {
     const personaName = args;
 
     // get account from api
-    const account = await axios
+    const accounts = await axios
       .get(`${aghanimApiUrl}/players?personaName=${personaName}`)
       .then((response) => response.data)
       .catch((err) => {
-        if (err.response.status == 404) return null;
+        if (err.response.status == 404) return [];
         throw err;
       });
 
     // check if account exist
-    if (!account)
+    if (!accounts.length)
       return message.reply(
         `account **${personaName}** is wara sa listahan. Paki-add anay gamit an **Invite!** command`
       );
+
+    const account = await axios
+      .get(`${aghanimApiUrl}/players/${accounts[0].steamId64}`)
+      .then((response) => response.data)
+      .catch((err) => {
+        throw err;
+      });
 
     // check if account has record
     if (!account.record || !account.record.streakCount)
