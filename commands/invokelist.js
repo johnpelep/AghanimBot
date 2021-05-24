@@ -5,6 +5,10 @@ module.exports = {
     const embedMessage = {
       color: 0x0099ff,
       title: 'Invoke List',
+      thumbnail: {
+        url:
+          'https://static.wikia.nocookie.net/defenseoftheancients/images/9/9a/Invoke-r9ei.png/revision/latest/scale-to-width-down/64?cb=20110907022217',
+      },
       fields: [
         {
           name: '\u200b',
