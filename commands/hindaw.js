@@ -61,9 +61,12 @@ function createEmbeddedMessage(account) {
 
   const embedMessage = {
     color: color,
-    title: account.personaName,
+    author: {
+      name: account.personaName,
+      icon_url: account.avatar,
+    },
     thumbnail: {
-      url: account.avatar,
+      url: account.rank.medalImageUrl,
     },
     fields: [
       {
