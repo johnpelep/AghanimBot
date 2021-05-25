@@ -12,7 +12,7 @@ module.exports = {
 
     // get account from api
     const accounts = await axios
-      .get(`${aghanimApiUrl}/players?personaName=${personaName}`)
+      .get(encodeURI(`${aghanimApiUrl}/players?personaName=${personaName}`))
       .then((response) => response.data)
       .catch((err) => {
         if (err.response.status == 404) return [];
