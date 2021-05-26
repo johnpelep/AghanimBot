@@ -25,8 +25,11 @@ module.exports = {
         `account **${personaName}** is wara sa listahan. Paki-add anay gamit an **Invite!** command`
       );
 
-    const account = await axios
-      .get(`${aghanimApiUrl}/players/${accounts[0].steamId64}`)
+    const account = accounts[0];
+
+    // get account record from api
+    account.record = await axios
+      .get(`${aghanimApiUrl}/players/${account.steamId64}/record`)
       .then((response) => response.data)
       .catch((err) => {
         throw err;
