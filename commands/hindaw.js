@@ -35,12 +35,6 @@ module.exports = {
         throw err;
       });
 
-    // check if account has record
-    if (!account.record || !account.record.streakCount)
-      return message.reply(
-        `si **${personaName}** waray pa nagpaparm yana nga bulan`
-      );
-
     const messageObj = createEmbeddedMessage(account);
 
     return message.channel.send(messageObj);
@@ -49,6 +43,7 @@ module.exports = {
 
 function createEmbeddedMessage(account) {
   const record = account.record;
+  const noRecord = !record || !record.streakCount;
   const color =
     record.streakCount > 1 && record.isWinStreak
       ? 0x89ff89
@@ -56,10 +51,11 @@ function createEmbeddedMessage(account) {
       ? 0xff4534
       : 0x0099ff;
 
-  let winRate =
-    ((record.winCount * 100) / (record.winCount + record.lossCount)).toFixed(
-      2
-    ) + '%';
+  let winRate = !noRecord
+    ? ((record.winCount * 100) / (record.winCount + record.lossCount)).toFixed(
+        2
+      ) + '%'
+    : '-';
   if (winRate.endsWith('.00%')) winRate = winRate.slice(0, -4) + '%';
 
   const embedMessage = {
@@ -79,17 +75,17 @@ function createEmbeddedMessage(account) {
       },
       {
         name: 'Total Games',
-        value: record.winCount + record.lossCount,
+        value: !noRecord ? record.winCount + record.lossCount : '-',
         inline: false,
       },
       {
         name: 'Wins',
-        value: record.winCount,
+        value: !noRecord ? record.winCount : '-',
         inline: false,
       },
       {
         name: 'Losses',
-        value: record.lossCount,
+        value: !noRecord ? record.lossCount : '-',
         inline: false,
       },
       {
@@ -99,10 +95,11 @@ function createEmbeddedMessage(account) {
       },
       {
         name: 'Streak',
-        value:
-          record.streakCount == 1
+        value: !noRecord
+          ? record.streakCount == 1
             ? 'No streak'
-            : `${record.streakCount} ${record.isWinStreak ? 'wins' : 'losses'}`,
+            : `${record.streakCount} ${record.isWinStreak ? 'wins' : 'losses'}`
+          : '-',
         inline: false,
       },
     ],
