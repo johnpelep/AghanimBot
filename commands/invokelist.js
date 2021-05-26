@@ -90,6 +90,16 @@ module.exports = {
           value: 'Pankumusta kun okeh pa',
           inline: false,
         },
+        {
+          name: '\u200b',
+          value: '\u200b',
+          inline: false,
+        },
+        {
+          name: 'LodiList!',
+          value: 'Pagkita san ranking',
+          inline: false,
+        },
       ],
     };
 
