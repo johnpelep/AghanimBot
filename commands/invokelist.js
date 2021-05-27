@@ -100,6 +100,16 @@ module.exports = {
           value: 'Pagkita san ranking',
           inline: false,
         },
+        {
+          name: '\u200b',
+          value: '\u200b',
+          inline: false,
+        },
+        {
+          name: 'LodiList! <Tier1/Tier2/Tier3...>',
+          value: 'Pagkita san ranking sa usa nga tier',
+          inline: false,
+        },
       ],
     };
 
