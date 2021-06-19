@@ -1,127 +1,35 @@
-const accountService = require('../services/accountService');
-const dotaApiService = require('../services/dotaApiService');
-const accountHelper = require('../helpers/accountHelper');
+const { default: axios } = require('axios');
+const { aghanimApiUrl } = require('../config');
+const NUMBER_OF_PLAYERS_PER_PAGE = 6;
 
 module.exports = {
   name: 'friends',
   description: 'Friends!',
   async execute(message, args) {
-    let status = '';
+    // get status argument
+    const status = args.length
+      ? args.shift().toLowerCase().replace('-', '')
+      : '';
 
-    if (args.length) status = args.shift().toLowerCase();
+    // get syncType based on status
+    const syncType = status == 'busog' || status == 'gutom' ? 1 : 2;
 
-    // get player summary from steam api
-    const accounts = await accountService.getAccounts();
-    let players = await dotaApiService.getPlayerSummary(accounts);
-
-    // filter players by status
-    const ingamePlayers = players.filter(
-      (item) => item.gameextrainfo != undefined
-    );
-    const onlinePlayers = players.filter(
-      (item) => item.personastate > 0 && item.gameextrainfo == undefined
-    );
-    const offlinePlayers = players.filter(
-      (item) => item.personastate == 0 && item.lastlogoff != undefined
-    );
-    const offlinePlayersNotFriend = players.filter(
-      (item) => item.personastate == 0 && item.lastlogoff == undefined
-    );
-
-    // sort ingame and online players by status
-    ingamePlayers.sort((a, b) => a.personastate - b.personastate);
-    onlinePlayers.sort((a, b) => a.personastate - b.personastate);
-
-    //sort offline players by lastlogoff
-    offlinePlayers.sort((a, b) => b.lastlogoff - a.lastlogoff);
-
-    //soft offline not friend players by personaname
-    offlinePlayersNotFriend.sort((a, b) =>
-      a.personaname.localeCompare(b.personaname)
-    );
-
-    switch (status) {
-      case '-active':
-        players = ingamePlayers.concat(onlinePlayers);
-        break;
-      case '-passive':
-        players = offlinePlayers.concat(offlinePlayersNotFriend);
-        break;
-      default:
-        players = ingamePlayers
-          .concat(onlinePlayers)
-          .concat(offlinePlayers)
-          .concat(offlinePlayersNotFriend);
-    }
-
-    let fields = [
-      {
-        name: '\u200b',
-        value: '\u200b',
-        inline: false,
-      },
-    ];
-
-    let embedMessage = {
-      color:
-        status == '-busog'
-          ? 0x89ff89
-          : status == '-gutom'
-          ? 0xff4534
-          : 0x0099ff,
-      title: 'Let us skirmish!',
-    };
-
-    // sync players info
-    for (let i = 0; i < players.length; i++) {
-      const player = players[i];
-      let account = accounts.find((a) => a.steamId64 == player.steamid);
-
-      if (
-        account.personaName != player.personaname ||
-        account.avatar != player.avatarfull
-      ) {
-        const updateDoc = {
-          $set: {
-            personaName: player.personaname,
-            avatar: player.avatarfull,
-          },
-        };
-
-        accountService.getAccountAndUpdate(
-          { steamId64: account.steamId64 },
-          updateDoc
-        );
-      }
-
-      if (status == '-busog' || status == '-gutom') {
-        account.personaName = player.personaname;
-        account.avatar = player.avatarfull;
-        account = await accountHelper.syncAccount(account);
-        player.record = account.record;
-      }
-    }
-
-    if (status == '-busog' || status == '-gutom') {
-      // remove players with no streak
-      players = players.filter((p) => p.record.streakCount > 1);
-
-      if (status == '-busog')
-        players = players.filter(
-          (p) => p.record.isWinStreak && p.record.streakCount > 0
-        );
-      else
-        players = players.filter(
-          (p) => !p.record.isWinStreak && p.record.streakCount > 0
-        );
-
-      players.sort((a, b) => {
-        if (a.record.streakCount > b.record.streakCount) return -1;
-        else return 1;
+    // get accounts from api
+    let accounts = await axios
+      .get(encodeURI(`${aghanimApiUrl}/players?syncType=${syncType}`))
+      .then((response) => response.data)
+      .catch((err) => {
+        if (err.response && err.response.status == 404) return [];
+        throw err;
       });
-    }
 
-    if (!players.length) {
+    // check if accounts found
+    if (!accounts.length)
+      return message.reply(`waray pa man sulod an listahan`);
+
+    accounts = filterAccounts(accounts, status);
+
+    if (!accounts.length) {
       embedMessage.footer = {
         text: 'No records found',
       };
@@ -129,139 +37,238 @@ module.exports = {
       return message.channel.send({ embed: embedMessage });
     }
 
-    for (let i = 0; i < players.length; i++) {
-      let player = players[i];
+    // create embedded message
+    const embedMessage = initEmbedMessage(status);
 
-      if (status == '-busog' || status == '-gutom') {
-        fields = buildAppetiteMessageFields(player, fields);
-      } else fields = buildActivityMessageFields(player, fields);
+    // iterate accounts
+    for (let i = 0; i < accounts.length; i++) {
+      let account = accounts[i];
 
-      if ((i + 1) % 6 == 0 || i == players.length - 1) {
-        embedMessage.fields = fields;
-        embedMessage.footer = {
-          text: `Page ${Math.ceil((i + 1) / 6)} of ${Math.ceil(
-            players.length / 6
-          )}`,
-        };
-        fields = [];
-        message.channel.send({ embed: embedMessage });
-        delete embedMessage.title;
+      // create fields for each account
+      const fields = createMessageFields(account, status);
+
+      // append fields to embed message fields
+      embedMessage.embed.fields.push.apply(embedMessage.embed.fields, fields);
+
+      if (
+        (i + 1) % NUMBER_OF_PLAYERS_PER_PAGE == 0 ||
+        i == accounts.length - 1
+      ) {
+        // set thumbnail
+        // embedMessage.embed.thumbnail.url = trophy.imageUrl;
+
+        // send message
+        message.channel.send(embedMessage);
+
+        // reset fields
+        embedMessage.embed.fields = initFields(status);
       }
     }
   },
 };
 
-function buildActivityMessageFields(player, fields) {
-  let status = '';
+function filterAccounts(accounts, status) {
+  if (status == 'busog' || status == 'gutom') {
+    // filter accounts with proper streak
+    accounts = accounts.filter(
+      (a) =>
+        a.record &&
+        a.record.streakCount > 1 &&
+        a.record.isWinStreak == (status == 'busog')
+    );
 
-  switch (player.personastate) {
-    case 0:
-      status = 'Offline';
-      break;
-    case 1:
-      status = 'Online';
-      break;
-    case 2:
-      status = 'Busy';
-      break;
-    case 3:
-      status = 'Away';
-      break;
-    case 4:
-      status = 'Snooze';
-      break;
-    case 5:
-      status = 'Looking to Trade';
-      break;
-    case 6:
-      status = 'Looking to Play';
-      break;
-    default:
-      status = 'Ambot daw';
-  }
-
-  // Name
-  fields.push({
-    name: 'Name',
-    value: player.personaname,
-    inline: false,
-  });
-
-  // Status
-  if (player.gameextrainfo != undefined) {
-    fields.push({
-      name: 'Status',
-      value: `Playing ${player.gameextrainfo}`,
-      inline: false,
+    // sort accounts by streak count descending
+    accounts.sort((a, b) => {
+      if (a.record.streakCount > b.record.streakCount) return -1;
+      else return 1;
     });
   } else {
-    fields.push({
-      name: 'Status',
-      value: status,
-      inline: false,
-    });
+    // filter accounts by status
+    const ingamePlayers = accounts.filter((a) => a.status.game != undefined);
+    const onlinePlayers = accounts.filter(
+      (a) => a.status.personaState > 0 && a.status.game == undefined
+    );
+    const offlinePlayers = accounts.filter(
+      (a) => a.status.personaState == 0 && a.status.lastLogOff != undefined
+    );
+    const offlinePlayersNotFriend = accounts.filter(
+      (a) => a.status.personaState == 0 && a.status.lastLogOff == undefined
+    );
+
+    // sort ingame and online accounts by status
+    ingamePlayers.sort((a, b) => a.status.personaState - b.status.personaState);
+    onlinePlayers.sort((a, b) => a.status.personaState - b.status.personaState);
+
+    //sort offline accounts by lastLogOff descending
+    offlinePlayers.sort((a, b) => b.status.lastLogOff - a.status.lastLogOff);
+
+    //soft offline not friend accounts by personaName
+    offlinePlayersNotFriend.sort((a, b) =>
+      a.personaName.localeCompare(b.status.personaName)
+    );
+
+    switch (status) {
+      case 'active':
+        accounts = ingamePlayers.concat(onlinePlayers);
+        break;
+      case 'passive':
+        accounts = offlinePlayers.concat(offlinePlayersNotFriend);
+        break;
+      default:
+        accounts = ingamePlayers
+          .concat(onlinePlayers)
+          .concat(offlinePlayers)
+          .concat(offlinePlayersNotFriend);
+    }
   }
 
-  // Last Log Off
-  if (status === 'Offline' && player.lastlogoff != undefined) {
-    var date = new Date(player.lastlogoff * 1000);
-    fields.push({
-      name: 'Logged Off Since',
-      value: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
-      inline: false,
-    });
+  return accounts;
+}
+
+function initEmbedMessage(status) {
+  let title = '';
+  let thumbnailUrl = '';
+  let color = 0;
+
+  if (status == 'busog' || status == 'gutom') {
+    if (status == 'busog') {
+      title = '*Ah hahahaha, you are the best, simply the best*';
+      thumbnailUrl =
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/6/6b/Dotalevel_icon99.png/revision/latest?cb=20150910042750';
+      color = 0x89ff89;
+    } else {
+      title = '*Bock bock bock, that is what you sound like!*';
+      thumbnailUrl =
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/8/8f/Dotalevel_icon00.png/revision/latest?cb=20150910041818';
+      color = 0xff4534;
+    }
+  } else {
+    title = 'Friends, let us skirmish!';
+    thumbnailUrl =
+      'https://static.wikia.nocookie.net/dota2_gamepedia/images/c/cf/Dotalevel_icon02.png/revision/latest?cb=20150910041829';
+    color = 0x0099ff;
   }
 
-  //break line
-  fields.push({
-    name: '\u200b',
-    value: '\u200b',
-    inline: false,
-  });
+  const embedMessage = {
+    embed: {
+      title: title,
+      // thumbnail: {
+      //   url: thumbnailUrl,
+      // },
+      color: color,
+      fields: initFields(status),
+    },
+  };
+
+  return embedMessage;
+}
+
+function initFields(status) {
+  let fields = [];
+
+  if (status == 'busog' || status == 'gutom') {
+    fields = [
+      {
+        name: '\u200b',
+        value: '**Streak**',
+        inline: true,
+      },
+      {
+        name: '\u200b',
+        value: '**Name**',
+        inline: true,
+      },
+      {
+        name: '\u200b',
+        value: '**Record**',
+        inline: true,
+      },
+    ];
+  } else {
+    fields = [
+      {
+        name: '\u200b',
+        value: '**Status**',
+        inline: true,
+      },
+      {
+        name: '\u200b',
+        value: '**Name**',
+        inline: true,
+      },
+      {
+        name: '\u200b',
+        value: '**Last Log Off**',
+        inline: true,
+      },
+    ];
+  }
 
   return fields;
 }
 
-function buildAppetiteMessageFields(player, fields) {
-  const record = player.record;
+function createMessageFields(account, status) {
+  let fields = [];
 
-  // Name
-  fields.push({
-    name: 'Name',
-    value: player.personaname,
-    inline: false,
-  });
+  if (status == 'busog' || status == 'gutom')
+    fields = createAppetiteMessageFields(account);
+  else fields = createActivityMessageFields(account);
 
-  // Win/Lose
-  fields.push({
-    name: 'Current Month Ranked Match',
-    value: `Total: ${record.winCount + record.lossCount}\nW/L: ${
-      record.winCount
-    }/${record.lossCount}`,
-    inline: false,
-  });
+  return fields;
+}
 
-  // Current Streak
-  fields.push({
-    name: 'Current Streak',
-    value: `${record.streakCount} ${
-      record.isWinStreak
-        ? record.streakCount > 1
-          ? 'wins'
-          : 'win'
-        : record.streakCount > 1
-        ? 'losses'
-        : 'loss'
-    }`,
-    inline: false,
-  });
+function createActivityMessageFields(account) {
+  const status = account.status;
+  const lastLogOff = status.lastLogOff
+    ? new Date(status.lastLogOff * 1000)
+    : new Date();
 
-  //break line
-  fields.push({
-    name: '\u200b',
-    value: '\u200b',
-    inline: false,
-  });
+  const fields = [
+    {
+      name: '\u200b',
+      value: status.game ? `Playing ${status.game}` : status.userStatus,
+      inline: true,
+    },
+    {
+      name: '\u200b',
+      value: account.personaName,
+      inline: true,
+    },
+    {
+      name: '\u200b',
+      value:
+        status.userStatus == 'Offline' && status.lastLogOff
+          ? `${lastLogOff.toLocaleDateString()} ${lastLogOff.toLocaleTimeString()}`
+          : '-',
+      inline: true,
+    },
+  ];
+
+  return fields;
+}
+
+function createAppetiteMessageFields(account) {
+  const record = account.record;
+
+  const fields = [
+    {
+      name: '\u200b',
+      value: record.streakCount,
+      inline: true,
+    },
+    {
+      name: '\u200b',
+      value: account.personaName,
+      inline: true,
+    },
+    {
+      name: '\u200b',
+      value: `Total: ${record.winCount + record.lossCount}\nW/L: ${
+        record.winCount
+      }/${record.lossCount}`,
+      inline: true,
+    },
+  ];
 
   return fields;
 }

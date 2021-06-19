@@ -15,7 +15,7 @@ module.exports = {
       .get(encodeURI(`${aghanimApiUrl}/players?personaName=${personaName}`))
       .then((response) => response.data)
       .catch((err) => {
-        if (err.response.status == 404) return [];
+        if (err.response && err.response.status == 404) return [];
         throw err;
       });
 

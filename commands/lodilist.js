@@ -1,16 +1,16 @@
 const { default: axios } = require('axios');
 const { aghanimApiUrl } = require('../config');
-const NUMBER_OF_PLAYERS_PER_TIER = 5;
+const NUMBER_OF_PLAYERS_PER_PAGE = 5;
 
 module.exports = {
   name: 'lodilist',
   async execute(message, args) {
     // get accounts from api
     let accounts = await axios
-      .get(encodeURI(`${aghanimApiUrl}/players`))
+      .get(encodeURI(`${aghanimApiUrl}/players?syncType=2`))
       .then((response) => response.data)
       .catch((err) => {
-        if (err.response.status == 404) return [];
+        if (err.response && err.response.status == 404) return [];
         throw err;
       });
 
@@ -28,18 +28,18 @@ module.exports = {
     let tier = getTier(args);
 
     // check if tier is too far
-    if (tier > Math.ceil(accounts.length / NUMBER_OF_PLAYERS_PER_TIER)) {
-      tier = Math.ceil(accounts.length / NUMBER_OF_PLAYERS_PER_TIER);
+    if (tier > Math.ceil(accounts.length / NUMBER_OF_PLAYERS_PER_PAGE)) {
+      tier = Math.ceil(accounts.length / NUMBER_OF_PLAYERS_PER_PAGE);
       message.reply(`selected tier is too far... adjusting to tier ${tier}...`);
     }
 
-    // slice accounts based on tier
-    accounts = sliceAccounts(tier, accounts);
+    // get accounts based on tier
+    accounts = getAccountsByTier(tier, accounts);
 
     // get thropies for message thumbnails
     const trophies = await getTrophies(tier);
 
-    // send embedded messages
+    // create embedded message
     const embedMessage = {
       embed: {
         title: '*Who will make Aghanim as proud as a new father?*',
@@ -65,7 +65,7 @@ module.exports = {
     };
 
     let trophy = {};
-    let rank = tier > 0 ? tier * NUMBER_OF_PLAYERS_PER_TIER - 4 : 1;
+    let rank = tier > 0 ? tier * NUMBER_OF_PLAYERS_PER_PAGE - 4 : 1;
     for (let i = 0; i < accounts.length; i++) {
       let account = accounts[i];
 
@@ -75,7 +75,7 @@ module.exports = {
       embedMessage.embed.fields.push.apply(embedMessage.embed.fields, fields);
 
       if (
-        (i + 1) % NUMBER_OF_PLAYERS_PER_TIER == 0 ||
+        (i + 1) % NUMBER_OF_PLAYERS_PER_PAGE == 0 ||
         i == accounts.length - 1
       ) {
         // // set footer
@@ -138,7 +138,7 @@ async function getTrophies(tier) {
     .get(encodeURI(`${aghanimApiUrl}/constants/trophies`))
     .then((response) => response.data)
     .catch((err) => {
-      if (err.response.status == 404) return [];
+      if (err.response && err.response.status == 404) return [];
       throw err;
     });
 
@@ -153,12 +153,12 @@ async function getTrophies(tier) {
   return trophies;
 }
 
-function sliceAccounts(tier, accounts) {
+function getAccountsByTier(tier, accounts) {
   if (tier == 0) return accounts; // 0 is all
 
   const slicedAccounts = accounts.slice(
-    tier * NUMBER_OF_PLAYERS_PER_TIER - NUMBER_OF_PLAYERS_PER_TIER,
-    tier * NUMBER_OF_PLAYERS_PER_TIER
+    tier * NUMBER_OF_PLAYERS_PER_PAGE - NUMBER_OF_PLAYERS_PER_PAGE,
+    tier * NUMBER_OF_PLAYERS_PER_PAGE
   );
 
   return slicedAccounts;

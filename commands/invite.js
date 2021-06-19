@@ -10,7 +10,8 @@ module.exports = {
       .post(`${aghanimApiUrl}/players`, { profileUrl: profileUrl })
       .then((response) => response.data)
       .catch((err) => {
-        if (err.response.status == 400) return err.response.data;
+        if (err.response && err.response.status == 400)
+          return err.response.data;
         throw err;
       });
 
