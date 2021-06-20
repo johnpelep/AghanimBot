@@ -95,8 +95,10 @@ function filterAccounts(accounts, status) {
       (a) => a.status.personaState == 0 && a.status.lastLogOff == undefined
     );
 
-    // sort ingame and online accounts by status
-    ingamePlayers.sort((a, b) => a.status.personaState - b.status.personaState);
+    // sort ingame accounts by game
+    ingamePlayers.sort((a, b) => a.status.game.localeCompare(b.status.game));
+
+    // sort online accounts by status
     onlinePlayers.sort((a, b) => a.status.personaState - b.status.personaState);
 
     //sort offline accounts by lastLogOff descending
