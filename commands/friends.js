@@ -1,6 +1,10 @@
 const { default: axios } = require('axios');
 const { aghanimApiUrl } = require('../config');
 const NUMBER_OF_PLAYERS_PER_PAGE = 6;
+const TimeAgo = require('javascript-time-ago');
+const en = require('javascript-time-ago/locale/en');
+TimeAgo.addDefaultLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
 module.exports = {
   name: 'friends',
@@ -30,11 +34,9 @@ module.exports = {
     accounts = filterAccounts(accounts, status);
 
     if (!accounts.length) {
-      embedMessage.footer = {
-        text: 'No records found',
-      };
-
-      return message.channel.send({ embed: embedMessage });
+      return message.channel.send({
+        embed: { footer: { text: 'No records found' } },
+      });
     }
 
     // create embedded message
@@ -200,7 +202,7 @@ function initFields(status) {
       },
       {
         name: '\u200b',
-        value: '**Last Log Off**',
+        value: '**Last Online**',
         inline: true,
       },
     ];
@@ -240,7 +242,7 @@ function createActivityMessageFields(account) {
       name: '\u200b',
       value:
         status.userStatus == 'Offline' && status.lastLogOff
-          ? `${lastLogOff.toLocaleDateString()} ${lastLogOff.toLocaleTimeString()}`
+          ? timeAgo.format(lastLogOff)
           : '-',
       inline: true,
     },
