@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { token } = require('./config');
+const { token, appId } = require('./config');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -19,10 +19,10 @@ client.once('ready', () => {
 });
 
 client.on('message', async (message) => {
-  if (message.author.bot) return;
+  if (message.author.bot && message.author.id != appId) return; // ignore message from other bots
 
   let args = message.content.trim().split(/ +/);
-  const commandName = args.shift().toLowerCase().slice(0, -1); //remove !
+  const commandName = args.shift().toLowerCase().slice(0, -1); // remove !
 
   if (!client.commands.has(commandName)) return;
 
