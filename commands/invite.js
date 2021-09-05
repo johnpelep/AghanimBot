@@ -4,6 +4,9 @@ const { aghanimApiUrl } = require('../config');
 module.exports = {
   name: 'invite',
   async execute(message, args) {
+    if (!args.length)
+      return message.reply('waray mo man dap ginbutang kun sino an iginvite');
+
     let profileUrl = args.shift();
 
     if (profileUrl.endsWith('/')) profileUrl = profileUrl.slice(0, -1);
