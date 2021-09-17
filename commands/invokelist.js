@@ -6,8 +6,7 @@ module.exports = {
       color: 0x0099ff,
       title: 'Invoke List',
       thumbnail: {
-        url:
-          'https://static.wikia.nocookie.net/defenseoftheancients/images/9/9a/Invoke-r9ei.png/revision/latest/scale-to-width-down/64?cb=20110907022217',
+        url: 'https://static.wikia.nocookie.net/defenseoftheancients/images/9/9a/Invoke-r9ei.png/revision/latest/scale-to-width-down/64?cb=20110907022217',
       },
       fields: [
         {
@@ -106,7 +105,7 @@ module.exports = {
           inline: false,
         },
         {
-          name: 'LodiList! <Tier1/Tier2/Tier3...>',
+          name: 'LodiList! <1/2/3...>',
           value: 'Pagkita san ranking sa usa nga tier',
           inline: false,
         },

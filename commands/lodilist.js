@@ -7,7 +7,7 @@ module.exports = {
   async execute(message, args) {
     // get accounts from api
     let accounts = await axios
-      .get(encodeURI(`${aghanimApiUrl}/players?syncType=2`))
+      .get(encodeURI(`${aghanimApiUrl}/api/players?syncType=1`))
       .then((response) => response.data)
       .catch((err) => {
         if (err.response && err.response.status == 404) return [];
@@ -22,7 +22,7 @@ module.exports = {
     accounts = accounts.filter((account) => account.rank != undefined);
 
     // sort accounts by rank descending
-    accounts.sort((a, b) => b.rank.rankTier - a.rank.rankTier);
+    accounts.sort((a, b) => b.rankTier - a.rankTier);
 
     // get tier
     let tier = getTier(args);
@@ -130,17 +130,48 @@ function getTier(args) {
     tier = !isNaN(arg) ? Number(arg) : 0;
   }
 
-  return tier; // 0 is all, 1 is best tier
+  return tier; // 0 is all, 1 is best tier, etc..
 }
 
 async function getTrophies(tier) {
-  let trophies = await axios
-    .get(encodeURI(`${aghanimApiUrl}/constants/trophies`))
-    .then((response) => response.data)
-    .catch((err) => {
-      if (err.response && err.response.status == 404) return [];
-      throw err;
-    });
+  let trophies = [
+    {
+      type: 'battlepoint6',
+      color: '151515',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/2/2f/Trophy_battlepoint6.png/revision/latest/scale-to-width-down/120?cb=20150910031457',
+    },
+    {
+      type: 'battlepoint5',
+      color: 'F08205',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/1/1f/Trophy_battlepoint5.png/revision/latest/scale-to-width-down/120?cb=20150910031452',
+    },
+    {
+      type: 'battlepoint4',
+      color: 'EDE2A0',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/9/96/Trophy_battlepoint4.png/revision/latest/scale-to-width-down/120?cb=20150910031447',
+    },
+    {
+      type: 'battlepoint3',
+      color: 'CDC5AD',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/1/11/Trophy_battlepoint3.png/revision/latest/scale-to-width-down/120?cb=20150910031439',
+    },
+    {
+      type: 'battlepoint2',
+      color: 'A6A4A3',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/4/4a/Trophy_battlepoint2.png/revision/latest/scale-to-width-down/120?cb=20150910031408',
+    },
+    {
+      type: 'battlepoint1',
+      color: '775645',
+      imageUrl:
+        'https://static.wikia.nocookie.net/dota2_gamepedia/images/3/33/Trophy_battlepoint1.png/revision/latest/scale-to-width-down/120?cb=20150910031405',
+    },
+  ];
 
   if (tier > 0) {
     if (tier > trophies.length) {
@@ -178,7 +209,7 @@ function createEmbeddedMessageFields(account, rank) {
     },
     {
       name: '\u200b',
-      value: account.rank.medal,
+      value: account.rank.medalName,
       inline: true,
     },
   ];

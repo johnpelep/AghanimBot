@@ -16,11 +16,11 @@ module.exports = {
       : '';
 
     // get syncType based on status
-    const syncType = status == 'busog' || status == 'gutom' ? 1 : 2;
+    const syncType = status == 'busog' || status == 'gutom' ? 2 : 1;
 
     // get accounts from api
     let accounts = await axios
-      .get(encodeURI(`${aghanimApiUrl}/players?syncType=${syncType}`))
+      .get(encodeURI(`${aghanimApiUrl}/api/players?syncType=${syncType}`))
       .then((response) => response.data)
       .catch((err) => {
         if (err.response && err.response.status == 404) return [];
@@ -85,30 +85,38 @@ function filterAccounts(accounts, status) {
       else return 1;
     });
   } else {
-    // filter accounts by status
-    const ingamePlayers = accounts.filter((a) => a.status.game != undefined);
+    // filter accounts by personaState
+    const ingamePlayers = accounts.filter(
+      (a) => a.personaState.game != undefined
+    );
     const onlinePlayers = accounts.filter(
-      (a) => a.status.personaState > 0 && a.status.game == undefined
+      (a) => a.personaState.id > 0 && a.personaState.game == undefined
     );
     const offlinePlayers = accounts.filter(
-      (a) => a.status.personaState == 0 && a.status.lastLogOff != undefined
+      (a) => a.personaState.id == 0 && a.personaState.lastLogOff != undefined
     );
     const offlinePlayersNotFriend = accounts.filter(
-      (a) => a.status.personaState == 0 && a.status.lastLogOff == undefined
+      (a) => a.personaState.id == 0 && a.personaState.lastLogOff == undefined
     );
 
     // sort ingame accounts by game
-    ingamePlayers.sort((a, b) => a.status.game.localeCompare(b.status.game));
+    ingamePlayers.sort((a, b) =>
+      a.personaState.game.localeCompare(b.personaState.game)
+    );
 
-    // sort online accounts by status
-    onlinePlayers.sort((a, b) => a.status.personaState - b.status.personaState);
+    // sort online accounts by personaState
+    onlinePlayers.sort((a, b) => a.personaState.id - b.personaState.id);
 
     //sort offline accounts by lastLogOff descending
-    offlinePlayers.sort((a, b) => b.status.lastLogOff - a.status.lastLogOff);
+    offlinePlayers.sort(
+      (a, b) =>
+        new Date(b.personaState.lastLogOff) -
+        new Date(a.personaState.lastLogOff)
+    );
 
     //soft offline not friend accounts by personaName
     offlinePlayersNotFriend.sort((a, b) =>
-      a.personaName.localeCompare(b.status.personaName)
+      a.personaName.localeCompare(b.personaName)
     );
 
     switch (status) {
@@ -222,15 +230,17 @@ function createMessageFields(account, status) {
 }
 
 function createActivityMessageFields(account) {
-  const status = account.status;
-  const lastLogOff = status.lastLogOff
-    ? new Date(status.lastLogOff * 1000)
+  const personaState = account.personaState;
+  const lastLogOff = personaState.lastLogOff
+    ? new Date(personaState.lastLogOff)
     : new Date();
 
   const fields = [
     {
       name: '\u200b',
-      value: status.game ? `Playing ${status.game}` : status.userStatus,
+      value: personaState.game
+        ? `Playing ${personaState.game}`
+        : personaState.name,
       inline: true,
     },
     {
@@ -241,7 +251,7 @@ function createActivityMessageFields(account) {
     {
       name: '\u200b',
       value:
-        status.userStatus == 'Offline' && status.lastLogOff
+        personaState.name == 'Offline' && personaState.lastLogOff
           ? timeAgo.format(lastLogOff)
           : '-',
       inline: true,
