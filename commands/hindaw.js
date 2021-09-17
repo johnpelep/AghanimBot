@@ -64,7 +64,7 @@ function createEmbeddedMessage(account) {
       icon_url: account.avatar,
     },
     thumbnail: {
-      url: account.rank.medalImageUrl,
+      url: account.rank.medalUrl,
     },
     fields: [
       {
