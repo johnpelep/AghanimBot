@@ -1,6 +1,11 @@
 const axios = require('axios');
 const { aghanimApiUrl } = require('../config');
 
+Date.prototype.addHours = function (h) {
+  this.setTime(this.getTime() + h * 60 * 60 * 1000);
+  return this;
+};
+
 module.exports = {
   name: 'hindaw',
   description: 'Hindaw!',
@@ -11,29 +16,19 @@ module.exports = {
     const personaName = args;
 
     // get account from api
-    const accounts = await axios
-      .get(encodeURI(`${aghanimApiUrl}/players?personaName=${personaName}`))
+    const account = await axios
+      .get(encodeURI(`${aghanimApiUrl}/api/players/${personaName}`))
       .then((response) => response.data)
       .catch((err) => {
-        if (err.response && err.response.status == 404) return [];
+        if (err.response && err.response.status == 404) return null;
         throw err;
       });
 
     // check if account exist
-    if (!accounts.length)
+    if (!account)
       return message.reply(
         `account **${personaName}** is wara sa listahan. Paki-add anay gamit an **Invite!** command`
       );
-
-    const account = accounts[0];
-
-    // get account record from api
-    account.record = await axios
-      .get(`${aghanimApiUrl}/players/${account.steamId64}/record`)
-      .then((response) => response.data)
-      .catch((err) => {
-        throw err;
-      });
 
     const messageObj = createEmbeddedMessage(account);
 
@@ -42,7 +37,11 @@ module.exports = {
 };
 
 function createEmbeddedMessage(account) {
-  const record = account.record;
+  const dateInPh = getTimeInPH();
+  const record = account.records.filter(
+    (r) =>
+      r.month == dateInPh.getMonth() + 1 && r.year == dateInPh.getFullYear()
+  )[0];
   const noRecord = !record || !record.streakCount;
   const color =
     record.streakCount > 1 && record.isWinStreak
@@ -106,4 +105,21 @@ function createEmbeddedMessage(account) {
   };
 
   return { embed: embedMessage };
+}
+
+//https://stackoverflow.com/a/8207708
+function getTimeInPH() {
+  const OFFSET = 8; //UTC+8
+
+  // create Date object for current location
+  var d = new Date();
+
+  // convert to msec
+  // subtract local time zone offset
+  // get UTC time in msec
+  var utc = d.getTime() + d.getTimezoneOffset() * 60000;
+
+  // create new Date object for different city
+  // using supplied offset
+  return new Date(utc + 3600000 * OFFSET);
 }
