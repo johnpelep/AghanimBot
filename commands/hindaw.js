@@ -37,7 +37,7 @@ module.exports = {
 };
 
 function createEmbeddedMessage(account) {
-  const dateInPh = getTimeInPH();
+  const dateInPh = new Date().getTimeInPh();
   const record = account.records.filter(
     (r) =>
       r.month == dateInPh.getMonth() + 1 && r.year == dateInPh.getFullYear()
@@ -105,21 +105,4 @@ function createEmbeddedMessage(account) {
   };
 
   return { embed: embedMessage };
-}
-
-//https://stackoverflow.com/a/8207708
-function getTimeInPH() {
-  const OFFSET = 8; //UTC+8
-
-  // create Date object for current location
-  var d = new Date();
-
-  // convert to msec
-  // subtract local time zone offset
-  // get UTC time in msec
-  var utc = d.getTime() + d.getTimezoneOffset() * 60000;
-
-  // create new Date object for different city
-  // using supplied offset
-  return new Date(utc + 3600000 * OFFSET);
 }

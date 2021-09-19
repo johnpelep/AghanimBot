@@ -71,13 +71,22 @@ module.exports = {
 
 function filterAccounts(accounts, status) {
   if (status == 'busog' || status == 'gutom') {
+    const dateInPh = new Date().getTimeInPh();
+
     // filter accounts with proper streak
-    accounts = accounts.filter(
-      (a) =>
-        a.record &&
-        a.record.streakCount > 1 &&
-        a.record.isWinStreak == (status == 'busog')
-    );
+    accounts.forEach((a) => {
+      a.record =
+        a.records.length &&
+        a.records.filter(
+          (r) =>
+            r.streakCount > 1 &&
+            r.isWinStreak == (status == 'busog') &&
+            r.month == dateInPh.getMonth() + 1 &&
+            r.year == dateInPh.getFullYear()
+        )[0];
+      delete a.records;
+    });
+    accounts = accounts.filter((a) => a.record);
 
     // sort accounts by streak count descending
     accounts.sort((a, b) => {
