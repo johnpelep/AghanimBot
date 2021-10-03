@@ -37,12 +37,8 @@ module.exports = {
 };
 
 function createEmbeddedMessage(account) {
-  const dateInPh = new Date().getTimeInPh();
-  const record = account.records.filter(
-    (r) =>
-      r.month == dateInPh.getMonth() + 1 && r.year == dateInPh.getFullYear()
-  )[0];
-  const hasRecord = record && record.streakCount;
+  const record = account.record;
+  const hasRecord = record.totalGames > 0;
   const color =
     record.streakCount > 1 && record.isWinStreak
       ? 0x89ff89
@@ -67,7 +63,7 @@ function createEmbeddedMessage(account) {
       },
       {
         name: 'Total Games',
-        value: hasRecord ? record.winCount + record.lossCount : '-',
+        value: hasRecord ? record.totalGames : '-',
         inline: false,
       },
       {

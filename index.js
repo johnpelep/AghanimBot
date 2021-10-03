@@ -14,23 +14,6 @@ for (const file of commandFiles) {
   client.commands.set(command.name, command);
 }
 
-//https://stackoverflow.com/a/8207708
-Date.prototype.getTimeInPh = () => {
-  const OFFSET = 8; //UTC+8
-
-  // create Date object for current location
-  var d = new Date();
-
-  // convert to msec
-  // subtract local time zone offset
-  // get UTC time in msec
-  var utc = d.getTime() + d.getTimezoneOffset() * 60000;
-
-  // create new Date object for different city
-  // using supplied offset
-  return new Date(utc + 3600000 * OFFSET);
-};
-
 client.once('ready', () => {
   console.log('Ready!');
 });
