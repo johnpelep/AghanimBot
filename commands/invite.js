@@ -22,8 +22,13 @@ module.exports = {
         throw err;
       });
 
-    if (res.errors && res.errors.steamId && res.errors.steamId.length) {
-      return message.channel.reply(res.errors.steamId[0]);
+    if (res.errors) {
+      let errorMessage = '';
+      if (res.errors.steamID64 && res.errors.steamID64.length)
+        errorMessage = res.errors.steamID64[0];
+      else if (res.errors.customID && res.errors.customID.length)
+        errorMessage = res.errors.customID[0];
+      return message.reply(errorMessage);
     }
 
     return message.channel.send(
