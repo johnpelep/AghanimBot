@@ -1,9 +1,12 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { default: axios } = require('axios');
 const { aghanimApiUrl } = require('../config');
 const NUMBER_OF_PLAYERS_PER_PAGE = 5;
 
 module.exports = {
-  name: 'lodilist',
+  data: new SlashCommandBuilder()
+    .setName('lodilist')
+    .setDescription('Lodi List!'),
   async execute(message, args) {
     // get accounts from api
     let accounts = await axios
@@ -40,29 +43,26 @@ module.exports = {
     const trophies = await getTrophies(tier);
 
     // create embedded message
-    const embedMessage = {
-      embed: {
-        title: '*Who will make Aghanim as proud as a new father?*',
-        thumbnail: {},
-        fields: [
-          {
-            name: '\u200b',
-            value: '**Rank**',
-            inline: true,
-          },
-          {
-            name: '\u200b',
-            value: '**Name**',
-            inline: true,
-          },
-          {
-            name: '\u200b',
-            value: '**Medal**',
-            inline: true,
-          },
-        ],
-      },
-    };
+    const embedMessages = []
+    const embedMessage = new EmbedBuilder()
+      .setTitle('*Who will make Aghanim as proud as a new father?*')
+      .addFields(
+        {
+          name: '\u200b',
+          value: '**Rank**',
+          inline: true,
+        },
+        {
+          name: '\u200b',
+          value: '**Name**',
+          inline: true,
+        },
+        {
+          name: '\u200b',
+          value: '**Medal**',
+          inline: true,
+        },
+      );
 
     let trophy = {};
     let rank = tier > 0 ? tier * NUMBER_OF_PLAYERS_PER_PAGE - 4 : 1;
@@ -72,7 +72,7 @@ module.exports = {
       const fields = createEmbeddedMessageFields(account, rank);
 
       // append fields to embed message fields
-      embedMessage.embed.fields.push.apply(embedMessage.embed.fields, fields);
+      embedMessage.addFields(fields)
 
       if (
         (i + 1) % NUMBER_OF_PLAYERS_PER_PAGE == 0 ||
@@ -89,16 +89,18 @@ module.exports = {
         if (trophies.length > 0) trophy = trophies.shift();
 
         // set thumbnail
-        embedMessage.embed.thumbnail.url = trophy.imageUrl;
+        embedMessage.setThumbnail(trophy.imageUrl);
 
         // set color
-        embedMessage.embed.color = '#' + trophy.color;
+        embedMessage.setColor('#' + trophy.color)
 
         // send message
-        message.channel.send(embedMessage);
+        const embedMessageJson = embedMessage.toJSON();
+        const cloneEmbedMessage = structuredClone(embedMessageJson);
+        embedMessages.push(cloneEmbedMessage);
 
         // reset fields
-        embedMessage.embed.fields = [
+        embedMessage.setFields(
           {
             name: '\u200b',
             value: '**Rank**',
@@ -114,18 +116,20 @@ module.exports = {
             value: '**Medal**',
             inline: true,
           },
-        ];
+        )
       }
 
       rank++;
     }
+
+    message.channel.send({ embeds: embedMessages });
   },
 };
 
 function getTier(args) {
   let tier = 0;
 
-  if (args.length) {
+  if (args && args.length) {
     const arg = args.shift().toLowerCase().replace('-', '').replace('tier', '');
     tier = !isNaN(arg) ? Number(arg) : 0;
   }
@@ -199,7 +203,7 @@ function createEmbeddedMessageFields(account, rank) {
   const fields = [
     {
       name: '\u200b',
-      value: rank,
+      value: Number(rank).toString(),
       inline: true,
     },
     {

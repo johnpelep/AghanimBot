@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node -r dotenv/config test.js",
     "start_dev": "node --trace-warnings -r dotenv/config index.js",
-    "start": "node --trace-warnings index.js"
+    "start": "node --trace-warnings index.js",
+    "deploy-commands": "node --trace-warnings -r dotenv/config deploy-commands.js"
   },
   "repository": {
     "type": "git",
@@ -20,9 +21,8 @@
   "homepage": "https://github.com/johnpelep/AghanimBot#readme",
   "dependencies": {
     "axios": "^0.21.2",
-    "discord.js": "^12.2.0",
-    "javascript-time-ago": "^2.3.7",
-    "mongodb": "^3.6.3"
+    "discord.js": "^14.13.0",
+    "javascript-time-ago": "^2.3.7"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"

@@ -1,3 +1,4 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { default: axios } = require('axios');
 const { aghanimApiUrl } = require('../config');
 const NUMBER_OF_PLAYERS_PER_PAGE = 6;
@@ -7,13 +8,15 @@ TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo('en-US');
 
 module.exports = {
-  name: 'friends',
-  description: 'Friends!',
-  async execute(message, args) {
-    // get status argument
-    const status = args.length
-      ? args.shift().toLowerCase().replace('-', '')
-      : '';
+  data: new SlashCommandBuilder()
+    .setName('friends')
+    .setDescription('Friends!'),
+  async execute(interaction) {
+    // // get status argument
+    // const status = args.length
+    //   ? args.shift().toLowerCase().replace('-', '')
+    //   : '';
+    const status = ''
 
     // get syncType based on status
     const syncType = status == 'busog' || status == 'gutom' ? 2 : 1;
@@ -29,17 +32,18 @@ module.exports = {
 
     // check if accounts found
     if (!accounts.length)
-      return message.reply(`waray pa man sulod an listahan`);
+      return interaction.reply(`waray pa man sulod an listahan`);
 
     accounts = filterAccounts(accounts, status);
 
     if (!accounts.length) {
-      return message.channel.send({
-        embed: { footer: { text: 'No records found' } },
-      });
+      const noRecordMessage = new EmbedBuilder()
+        .setFooter({ text: 'No records found' });
+      return interaction.channel.send({ embeds: [noRecordMessage] });
     }
 
     // create embedded message
+    const embedMessages = []
     const embedMessage = initEmbedMessage(status);
 
     // iterate accounts
@@ -50,22 +54,26 @@ module.exports = {
       const fields = createMessageFields(account, status);
 
       // append fields to embed message fields
-      embedMessage.embed.fields.push.apply(embedMessage.embed.fields, fields);
+      embedMessage.addFields(fields)
 
       if (
         (i + 1) % NUMBER_OF_PLAYERS_PER_PAGE == 0 ||
         i == accounts.length - 1
       ) {
         // set thumbnail
-        // embedMessage.embed.thumbnail.url = trophy.imageUrl;
+        // embedMessage.setThumbnail(trophy.imageUrl);
 
         // send message
-        message.channel.send(embedMessage);
+        const embedMessageJson = embedMessage.toJSON();
+        const cloneEmbedMessage = structuredClone(embedMessageJson);
+        embedMessages.push(cloneEmbedMessage);
 
         // reset fields
-        embedMessage.embed.fields = initFields(status);
+        embedMessage.setFields(initFields(status));
       }
     }
+
+    interaction.channel.send({ embeds: embedMessages });
   },
 };
 
@@ -159,16 +167,11 @@ function initEmbedMessage(status) {
     color = 0x0099ff;
   }
 
-  const embedMessage = {
-    embed: {
-      title: title,
-      // thumbnail: {
-      //   url: thumbnailUrl,
-      // },
-      color: color,
-      fields: initFields(status),
-    },
-  };
+  const embedMessage = new EmbedBuilder()
+    .setTitle(title)
+    // .setThumbnail(thumbnailUrl)
+    .setColor(color)
+    .addFields(initFields(status));
 
   return embedMessage;
 }
@@ -275,9 +278,8 @@ function createAppetiteMessageFields(account) {
     },
     {
       name: '\u200b',
-      value: `Total: ${record.winCount + record.lossCount}\nW/L: ${
-        record.winCount
-      }/${record.lossCount}`,
+      value: `Total: ${record.winCount + record.lossCount}\nW/L: ${record.winCount
+        }/${record.lossCount}`,
       inline: true,
     },
   ];

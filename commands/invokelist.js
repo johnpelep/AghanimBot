@@ -1,14 +1,15 @@
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+
 module.exports = {
-  name: 'invokelist',
-  description: 'InvokeList!',
-  execute(message, args) {
-    const embedMessage = {
-      color: 0x0099ff,
-      title: 'Invoke List',
-      thumbnail: {
-        url: 'https://static.wikia.nocookie.net/defenseoftheancients/images/9/9a/Invoke-r9ei.png/revision/latest/scale-to-width-down/64?cb=20110907022217',
-      },
-      fields: [
+  data: new SlashCommandBuilder()
+    .setName('invokelist')
+    .setDescription('InvokeList!'),
+  execute(interaction) {
+    const embedMessage = new EmbedBuilder()
+      .setColor(0x0099ff)
+      .setTitle('Invoke List')
+      .setThumbnail('https://static.wikia.nocookie.net/defenseoftheancients/images/9/9a/Invoke-r9ei.png/revision/latest/scale-to-width-down/64?cb=20110907022217')
+      .addFields(
         {
           name: '\u200b',
           value: '\u200b',
@@ -109,9 +110,8 @@ module.exports = {
           value: 'Pagkita san ranking sa usa nga tier',
           inline: false,
         },
-      ],
-    };
+      );
 
-    message.channel.send({ embed: embedMessage });
+    interaction.channel.send({ embeds: [embedMessage] });
   },
 };

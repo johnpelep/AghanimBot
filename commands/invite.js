@@ -1,13 +1,20 @@
+const { SlashCommandBuilder } = require('discord.js');
 const axios = require('axios');
 const { aghanimApiUrl } = require('../config');
 
 module.exports = {
-  name: 'invite',
-  async execute(message, args) {
-    if (!args.length)
-      return message.reply('waray mo man dap ginbutang kun sino an iginvite');
+  data: new SlashCommandBuilder()
+    .setName('invite')
+    .setDescription('Invite')
+    .addStringOption(option => option
+      .setName('steam-profile-url')
+      .setDescription('Steam Profile URL')
+      .setRequired(true)),
+  async execute(interaction) {
+    let profileUrl = interaction.options.getString('steam-profile-url');
 
-    let profileUrl = args.shift();
+    if (!profileUrl)
+      return interaction.reply('waray mo man dap ginbutang kun sino an iginvite');
 
     if (profileUrl.endsWith('/')) profileUrl = profileUrl.slice(0, -1);
 
@@ -28,10 +35,10 @@ module.exports = {
         errorMessage = res.errors.steamID64[0];
       else if (res.errors.customID && res.errors.customID.length)
         errorMessage = res.errors.customID[0];
-      return message.reply(errorMessage);
+      return interaction.reply(errorMessage);
     }
 
-    return message.channel.send(
+    return interaction.channel.send(
       `*Aghanim the Popular welcomes you,* ***${res.personaName}***`
     );
   },
